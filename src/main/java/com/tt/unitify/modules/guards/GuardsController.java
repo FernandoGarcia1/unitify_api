@@ -1,4 +1,4 @@
-package com.tt.unitify.modules.users;
+package com.tt.unitify.modules.guards;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,18 +8,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.ExecutionException;
+
 @Log4j2
 @RestController
-@RequestMapping("/user")
-public class UserController {
-
+@RequestMapping("/guard")
+public class GuardsController {
     @Autowired
-    UserService userService;
-
+    private GuardsService guardsService;
     @PostMapping()
-    public String createUser(@RequestBody UserEntity user) throws ExecutionException, InterruptedException {
-        log.info("User: {}", user);
-        return userService.createUser(user);
+    public String createUser(@RequestBody GuardEntity guard) throws ExecutionException, InterruptedException {
+        log.info("Guard: {}", guard);
+        return guardsService.createGuard(guard);
     }
-
 }
