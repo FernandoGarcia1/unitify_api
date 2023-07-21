@@ -1,11 +1,10 @@
-package com.tt.unitify.modules.users;
+package com.tt.unitify.modules.residents;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class UserEntity extends UserDto{
+public class ResidentEntity extends ResidentDto{
     String id;
-
 }

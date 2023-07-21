@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 public class UserService {
     public static final String COLLECTION="USERS";
     private final Firestore db = FirestoreClient.getFirestore();
-    public String createUser(UserEntity user) throws ExecutionException, InterruptedException {
+    public String createUser(UserDto user) throws ExecutionException, InterruptedException {
 
         //ApiFuture<WriteResult> collection = dbFirestore.collection(COLLECTION).document(USER_DOCUMENT).set(user);
         ApiFuture<DocumentReference> collection = db.collection(COLLECTION).add(user);

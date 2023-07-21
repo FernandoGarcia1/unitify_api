@@ -17,7 +17,7 @@ public class UserController {
     UserService userService;
 
     @PostMapping()
-    public String createUser(@RequestBody UserEntity user) throws ExecutionException, InterruptedException {
+    public String createUser(@RequestBody UserDto user) throws ExecutionException, InterruptedException {
         log.info("User: {}", user);
         return userService.createUser(user);
     }

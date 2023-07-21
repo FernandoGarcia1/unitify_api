@@ -1,11 +1,9 @@
-package com.tt.unitify.modules.users;
+package com.tt.unitify.modules.posttype;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class UserEntity extends UserDto{
-    String id;
-
+public class PostTypeEntity extends PostTypeDto{
 }

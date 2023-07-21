@@ -1,11 +1,10 @@
-package com.tt.unitify.modules.users;
+package com.tt.unitify.modules.eventtype;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class UserEntity extends UserDto{
+public class EventTypeEntity extends EventTypeDto{
     String id;
-
 }
