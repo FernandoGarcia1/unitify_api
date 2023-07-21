@@ -8,6 +8,6 @@ public class PaymentServicesDto {
     String description;
     String amount;
     String urlVoucher;
-    String date;
+    String creationDate;
     String idAdmin;
 }
