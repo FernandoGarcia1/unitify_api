@@ -34,4 +34,10 @@ public class TestController {
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+
+    @PostMapping("/pdf")
+    public String uploadFile() throws Exception {
+        testService.creeatePdf();
+        return "OK";
+    }
 }
