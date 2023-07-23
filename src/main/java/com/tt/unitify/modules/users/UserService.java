@@ -2,8 +2,8 @@ package com.tt.unitify.modules.users;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.cloud.FirestoreClient;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -13,13 +13,29 @@ import java.util.concurrent.ExecutionException;
 @Log4j2
 @Service
 public class UserService {
-    public static final String COLLECTION="UNITIFY";
-    public static final String USER_DOCUMENT="USER";
+    public static final String COLLECTION="USERS";
+    private final Firestore db = FirestoreClient.getFirestore();
     public String createUser(UserDto user) throws ExecutionException, InterruptedException {
-        Firestore dbFirestore = FirestoreClient.getFirestore();
+
         //ApiFuture<WriteResult> collection = dbFirestore.collection(COLLECTION).document(USER_DOCUMENT).set(user);
-        ApiFuture<DocumentReference> collection = dbFirestore.collection(COLLECTION).add(user);
+        ApiFuture<DocumentReference> collection = db.collection(COLLECTION).add(user);
         return collection.get().getId();
+    }
+
+    public UserEntity findUser(String id) throws ExecutionException, InterruptedException {
+        DocumentReference docRef = db.collection(COLLECTION).document(id);
+        ApiFuture<DocumentSnapshot> future = docRef.get();
+        DocumentSnapshot document = future.get();
+        UserEntity entity = document.toObject(UserEntity.class);
+        if ( entity != null) {
+            log.info("Document: {}", document);
+            log.info("Future: {}", future.get().getId());
+            entity.setId(future.get().getId());
+            return entity;
+        } else {
+            log.info("No such document!");
+            return null;
+        }
     }
 
     /*public String update(String id,UserDto user) throws ExecutionException, InterruptedException {
