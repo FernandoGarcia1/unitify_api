@@ -30,7 +30,8 @@ public class TestService {
     }
 
         void creeatePdf() throws Exception {
-            pdfService.createPdf();
+            //pdfService.createPdf();
+            pdfService.pdfExample();
         }
 
 
