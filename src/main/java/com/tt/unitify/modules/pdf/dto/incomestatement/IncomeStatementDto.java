@@ -1,4 +1,4 @@
-package com.tt.unitify.modules.pdf.dto;
+package com.tt.unitify.modules.pdf.dto.incomestatement;
 
 import lombok.Data;
 
