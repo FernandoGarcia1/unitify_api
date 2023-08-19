@@ -1,13 +1,16 @@
 package com.tt.unitify.modules.pdf;
 
-import com.lowagie.text.*;
 import com.lowagie.text.Font;
 import com.lowagie.text.Rectangle;
+import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.pdf.draw.DottedLineSeparator;
 import com.lowagie.text.pdf.draw.LineSeparator;
+import com.tt.unitify.modules.pdf.dto.annualpaymentreport.AnnualPaymentReportDto;
+import com.tt.unitify.modules.pdf.dto.annualpaymentreport.DepartmentDataDto;
+import com.tt.unitify.modules.pdf.dto.annualpaymentreport.PaymentReportDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDataDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDto;
 import com.tt.unitify.modules.pdf.dto.monthlyreport.MonthlyReportDto;
@@ -26,7 +29,7 @@ import java.util.Date;
 @Log4j2
 public class PdfService {
 
-    public final String CREATE_FILE_ERROR = "Error generating PDF document. ";
+    public static final String CREATE_FILE_ERROR = "Error generating PDF document. ";
 
     public void createPdf() {
         Document myPDFDoc = new Document();
@@ -285,4 +288,110 @@ public class PdfService {
             throw e;
         }
     }
+
+    public void annualPaymentReport(AnnualPaymentReportDto data) throws FileNotFoundException {
+        Document doc = new Document();
+        doc.setPageSize(PageSize.A4.rotate());
+        try {
+
+            FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./annual_report_building_"+data.getBuilding()+"_"+data.getYear()+".pdf"));
+            final PdfWriter pdfWriter = PdfWriter.getInstance(doc, pdfOutputFile);
+            doc.open();
+
+            String title = "EDIFICIO ".concat(data.getBuilding());
+            Font titleFont = new Font(Font.ITALIC, 12, Font.UNDERLINE, Color.BLACK);
+            Paragraph titleParagraph = new Paragraph(title,titleFont);
+            titleParagraph.setAlignment(Element.ALIGN_CENTER);
+            doc.add(titleParagraph);
+            doc.add(new Paragraph(Chunk.NEWLINE));
+
+            PdfPTable table = new PdfPTable(14);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[] {4.142F, 10.142F, 7.142F,7.142F, 7.142F,7.142F, 7.142F,7.142F, 7.142F,7.142F, 7.142F,7.142F, 7.142F,7.142F});
+
+            Font titleColumn = new Font(1, 6);
+
+            PdfPCell title1 = new PdfPCell(new Paragraph("DEPTO",titleColumn));
+            PdfPCell title2 = new PdfPCell(new Paragraph("NOMBRE",titleColumn));
+            PdfPCell title3 = new PdfPCell(new Paragraph("ENERO",titleColumn));
+            PdfPCell title4 = new PdfPCell(new Paragraph("FEBRERO",titleColumn));
+            PdfPCell title5 = new PdfPCell(new Paragraph("ABRIL",titleColumn));
+            PdfPCell title6 = new PdfPCell(new Paragraph("MARZO",titleColumn));
+            PdfPCell title7 = new PdfPCell(new Paragraph("MAYO",titleColumn));
+            PdfPCell title8 = new PdfPCell(new Paragraph("JUNIO",titleColumn));
+            PdfPCell title9 = new PdfPCell(new Paragraph("JULIO",titleColumn));
+            PdfPCell title10 = new PdfPCell(new Paragraph("AGOSTO",titleColumn));
+            PdfPCell title11 = new PdfPCell(new Paragraph("SEPTIEMBRE",titleColumn));
+            PdfPCell title12 = new PdfPCell(new Paragraph("OCTUBRE",titleColumn));
+            PdfPCell title13 = new PdfPCell(new Paragraph("NOVIEMBRE",titleColumn));
+            PdfPCell title14 = new PdfPCell(new Paragraph("DICIEMBRE",titleColumn));
+
+
+            table.addCell(title1);
+            table.addCell(title2);
+            table.addCell(title3);
+            table.addCell(title4);
+            table.addCell(title5);
+            table.addCell(title6);
+            table.addCell(title7);
+            table.addCell(title8);
+            table.addCell(title9);
+            table.addCell(title10);
+            table.addCell(title11);
+            table.addCell(title12);
+            table.addCell(title13);
+            table.addCell(title14);
+            Font cellFont = new Font(1, 6);
+
+            for (DepartmentDataDto paymentData : data.getPaymentDataList()) {
+                PdfPCell cell1 = new PdfPCell(new Paragraph(paymentData.getDepartment(),cellFont));
+                PdfPCell cell2 = new PdfPCell(new Paragraph(paymentData.getName(),cellFont));
+                table.addCell(cell1);
+                table.addCell(cell2);
+
+                PdfPCell cell3 = pdfCell(paymentData.getPaymentDtoList().get(0),cellFont);
+                PdfPCell cell4 = pdfCell(paymentData.getPaymentDtoList().get(1),cellFont);
+                PdfPCell cell5 = pdfCell(paymentData.getPaymentDtoList().get(2),cellFont);
+                PdfPCell cell6 = pdfCell(paymentData.getPaymentDtoList().get(3),cellFont);
+                PdfPCell cell7 = pdfCell(paymentData.getPaymentDtoList().get(4),cellFont);
+                PdfPCell cell8 = pdfCell(paymentData.getPaymentDtoList().get(5),cellFont);
+                PdfPCell cell9 = pdfCell(paymentData.getPaymentDtoList().get(6),cellFont);
+                PdfPCell cell10 = pdfCell(paymentData.getPaymentDtoList().get(7),cellFont);
+                PdfPCell cell11 = pdfCell(paymentData.getPaymentDtoList().get(8),cellFont);
+                PdfPCell cell12 = pdfCell(paymentData.getPaymentDtoList().get(9),cellFont);
+                PdfPCell cell13 = pdfCell(paymentData.getPaymentDtoList().get(10),cellFont);
+                PdfPCell cell14 = pdfCell(paymentData.getPaymentDtoList().get(11),cellFont);
+                table.addCell(cell3);
+                table.addCell(cell4);
+                table.addCell(cell5);
+                table.addCell(cell6);
+                table.addCell(cell7);
+                table.addCell(cell8);
+                table.addCell(cell9);
+                table.addCell(cell10);
+                table.addCell(cell11);
+                table.addCell(cell12);
+                table.addCell(cell13);
+                table.addCell(cell14);
+            }
+
+            doc.add(table);
+            doc.close();
+            pdfWriter.close();
+
+        } catch (Exception e) {
+            log.error("Error generating PDF document. {} - {}", e.getMessage(), e.getStackTrace());
+            throw e;
+        }
+    }
+
+    private PdfPCell pdfCell(PaymentReportDto data, Font cellFont){
+        if(data.isEnabled()){
+            return new PdfPCell(new Paragraph("Folio: "+data.getFolio()+"\n"+"Fecha: "+data.getDatePayment(),cellFont));
+        }else {
+            return new PdfPCell(new Paragraph(""));
+        }
+    }
 }
+
+

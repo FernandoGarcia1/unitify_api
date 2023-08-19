@@ -1,6 +1,9 @@
 package com.tt.unitify;
 
 import com.tt.unitify.modules.pdf.PdfService;
+import com.tt.unitify.modules.pdf.dto.annualpaymentreport.AnnualPaymentReportDto;
+import com.tt.unitify.modules.pdf.dto.annualpaymentreport.DepartmentDataDto;
+import com.tt.unitify.modules.pdf.dto.annualpaymentreport.PaymentReportDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDataDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDto;
 import com.tt.unitify.modules.pdf.dto.monthlyreport.MiscellaneousExpenses;
@@ -47,7 +50,7 @@ public class UnitifyApplication {
 		log.info("PDF created");
 	}
 
-	@EventListener(ApplicationReadyEvent.class)
+	//@EventListener(ApplicationReadyEvent.class)
 	public void pdfMonthlyReportExample() throws FileNotFoundException {
 		MonthlyReportDto data = new MonthlyReportDto();
 		data.setMonth("Enero");
@@ -64,6 +67,88 @@ public class UnitifyApplication {
 		data.setOthersPayments(miscellaneousExpenses);
 		pdfService.monthlyReport(data);
 
+		log.info("PDF created");
+	}
+	@EventListener(ApplicationReadyEvent.class)
+	private void pdfAnnualReportExample() throws FileNotFoundException {
+		AnnualPaymentReportDto data = new AnnualPaymentReportDto();
+		data.setYear("2023");
+		data.setBuilding("B");
+
+		List<DepartmentDataDto> paymentDataList = new ArrayList<>();
+		DepartmentDataDto departmentDataDto1 = new DepartmentDataDto();
+		departmentDataDto1.setDepartment("301");
+		departmentDataDto1.setName("Juan Perez Rodriguez");
+		List<PaymentReportDto> paymentReportDtoList1 = new ArrayList<>();
+		paymentReportDtoList1.add(new PaymentReportDto("Enero", "12/01/2022", "1"));
+		paymentReportDtoList1.add(new PaymentReportDto("Febrero", "12/02/2022", "2"));
+		paymentReportDtoList1.add(new PaymentReportDto("Marzo", "12/03/2022", "3"));
+		paymentReportDtoList1.add(new PaymentReportDto("Abril", "12/04/2022", "4"));
+		paymentReportDtoList1.add(new PaymentReportDto("Mayo", "12/05/2022", "5"));
+		paymentReportDtoList1.add(new PaymentReportDto("Junio", "12/06/2022", "6"));
+		paymentReportDtoList1.add(new PaymentReportDto("Julio", "12/07/2022", "7"));
+		paymentReportDtoList1.add(new PaymentReportDto("Agosto", "12/08/2022", "8"));
+		paymentReportDtoList1.add(new PaymentReportDto("Septiembre", "12/09/2022", "9"));
+		paymentReportDtoList1.add(new PaymentReportDto("Octubre", "12/10/2022", "10"));
+		paymentReportDtoList1.add(new PaymentReportDto("Noviembre", "12/11/2022", "11"));
+		paymentReportDtoList1.add(new PaymentReportDto("Diciembre", "12/12/2022", "12"));
+		departmentDataDto1.setPaymentDtoList(paymentReportDtoList1);
+		paymentDataList.add(departmentDataDto1);
+
+
+
+		DepartmentDataDto departmentDataDto2 = new DepartmentDataDto();
+		departmentDataDto2.setDepartment("302");
+		departmentDataDto2.setName("Maria Angeles Perez Rodriguez");
+		List<PaymentReportDto> paymentReportDtoList2 = new ArrayList<>();
+		paymentReportDtoList2.add(new PaymentReportDto("Enero", "12/01/2022", "1"));
+		paymentReportDtoList2.add(new PaymentReportDto("Febrero", "12/02/2022", "2"));
+		paymentReportDtoList2.add(new PaymentReportDto("3",false));
+		paymentReportDtoList2.add(new PaymentReportDto("4",false));
+		paymentReportDtoList2.add(new PaymentReportDto("Mayo", "12/02/2022", "5"));
+		paymentReportDtoList2.add(new PaymentReportDto("Junio", "12/02/2022", "6"));
+		paymentReportDtoList2.add(new PaymentReportDto("7",false));
+		paymentReportDtoList2.add(new PaymentReportDto("Agosto", "12/02/2022", "8"));
+		paymentReportDtoList2.add(new PaymentReportDto("9",false));
+		paymentReportDtoList2.add(new PaymentReportDto("Octubre", "12/02/2022", "10"));
+		paymentReportDtoList2.add(new PaymentReportDto("11",false));
+		paymentReportDtoList2.add(new PaymentReportDto("Diciembre", "12/02/2022", "12"));
+		departmentDataDto2.setPaymentDtoList(paymentReportDtoList2);
+
+		DepartmentDataDto departmentDataDto3 = new DepartmentDataDto();
+		departmentDataDto3.setDepartment("312");
+		departmentDataDto3.setName("Maria Angeles Perez Rodriguez Rodriguez Rodriguez Rodriguez");
+		List<PaymentReportDto> paymentReportDtoList3 = new ArrayList<>();
+		paymentReportDtoList3.add(new PaymentReportDto("1",false));
+		paymentReportDtoList3.add(new PaymentReportDto("2",false));
+		paymentReportDtoList3.add(new PaymentReportDto("3",false));
+		paymentReportDtoList3.add(new PaymentReportDto("4",false));
+		paymentReportDtoList3.add(new PaymentReportDto("5",false));
+		paymentReportDtoList3.add(new PaymentReportDto("456465AFG", "12/02/2022", "6"));
+		paymentReportDtoList3.add(new PaymentReportDto("7",false));
+		paymentReportDtoList3.add(new PaymentReportDto("8",false));
+		paymentReportDtoList3.add(new PaymentReportDto("9",false));
+		paymentReportDtoList3.add(new PaymentReportDto("12234AHGF", "12/02/2022", "10"));
+		paymentReportDtoList3.add(new PaymentReportDto("11",false));
+		paymentReportDtoList3.add(new PaymentReportDto("765GF17J","12/02/2022", "12"));
+		departmentDataDto3.setPaymentDtoList(paymentReportDtoList3);
+
+		paymentDataList.add(departmentDataDto2);
+		paymentDataList.add(departmentDataDto1);
+		paymentDataList.add(departmentDataDto2);
+		paymentDataList.add(departmentDataDto1);
+		paymentDataList.add(departmentDataDto2);
+		paymentDataList.add(departmentDataDto2);
+		paymentDataList.add(departmentDataDto1);
+		paymentDataList.add(departmentDataDto1);
+		paymentDataList.add(departmentDataDto3);
+		paymentDataList.add(departmentDataDto2);
+		paymentDataList.add(departmentDataDto1);
+
+		data.setPaymentDataList(paymentDataList);
+
+
+		pdfService.annualPaymentReport(data);
 		log.info("PDF created");
 	}
 
