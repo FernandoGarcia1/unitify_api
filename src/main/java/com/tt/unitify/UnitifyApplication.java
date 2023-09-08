@@ -1,7 +1,6 @@
 package com.tt.unitify;
 
-import com.tt.unitify.modules.payment.PaymentService;
-import com.tt.unitify.modules.pdf.PdfService;
+import com.tt.unitify.modules.pdf.CreatePdfService;
 import com.tt.unitify.modules.pdf.dto.annualpaymentreport.AnnualPaymentReportDto;
 import com.tt.unitify.modules.pdf.dto.annualpaymentreport.DepartmentDataDto;
 import com.tt.unitify.modules.pdf.dto.annualpaymentreport.PaymentReportDto;
@@ -29,13 +28,18 @@ import java.util.concurrent.ExecutionException;
 public class UnitifyApplication {
 
 	@Autowired
-	PdfService pdfService;
+	CreatePdfService createPdfService;
 
 
 	public static void main(String[] args) {
 		SpringApplication.run(UnitifyApplication.class, args);
 	}
 
+	@EventListener(ApplicationReadyEvent.class)
+	public void pdfMonthlyDepartmentReportExample() throws FileNotFoundException {
+		createPdfService.monthlyDepartmentReport();
+		log.info("PDF created");
+	}
 	//@EventListener(ApplicationReadyEvent.class)
 	public void pdfIncomeStatementExample(){
 		IncomeStatementDto data = new IncomeStatementDto();
@@ -53,7 +57,7 @@ public class UnitifyApplication {
 			incomeStatementDtoList.add(data1);
 		}
 		data.setData(incomeStatementDtoList);
-		pdfService.incomeStatement(data);
+		createPdfService.incomeStatement(data);
 		log.info("PDF created");
 	}
 
@@ -72,7 +76,7 @@ public class UnitifyApplication {
 		miscellaneousExpenses.setDescription("Limpieza, agua, luz.");
 		miscellaneousExpenses.setTotalAmount("1000");
 		data.setOthersPayments(miscellaneousExpenses);
-		pdfService.monthlyReport(data);
+		createPdfService.monthlyReport(data);
 
 		log.info("PDF created");
 	}
@@ -155,7 +159,7 @@ public class UnitifyApplication {
 		data.setPaymentDataList(paymentDataList);
 
 
-		pdfService.annualPaymentReport(data);
+		createPdfService.annualPaymentReport(data);
 		log.info("PDF created");
 	}
 
@@ -174,7 +178,7 @@ public class UnitifyApplication {
 		payrollDataList.add(payrollData1);
 		payrollDataList.add(payrollData2);
 		data.setPayrollData(payrollDataList);
-		pdfService.payrollReport(data);
+		createPdfService.payrollReport(data);
 		log.info("PDF created");
 	}
 
