@@ -1,5 +1,6 @@
 package com.tt.unitify;
 
+import com.tt.unitify.modules.payment.PaymentService;
 import com.tt.unitify.modules.pdf.PdfService;
 import com.tt.unitify.modules.pdf.dto.annualpaymentreport.AnnualPaymentReportDto;
 import com.tt.unitify.modules.pdf.dto.annualpaymentreport.DepartmentDataDto;
@@ -8,6 +9,8 @@ import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDataDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDto;
 import com.tt.unitify.modules.pdf.dto.monthlyreport.MiscellaneousExpenses;
 import com.tt.unitify.modules.pdf.dto.monthlyreport.MonthlyReportDto;
+import com.tt.unitify.modules.pdf.dto.payrollreport.PayrollData;
+import com.tt.unitify.modules.pdf.dto.payrollreport.PayrollReportDto;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -17,7 +20,9 @@ import org.springframework.context.event.EventListener;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Log4j2
 @SpringBootApplication
@@ -25,6 +30,8 @@ public class UnitifyApplication {
 
 	@Autowired
 	PdfService pdfService;
+
+
 	public static void main(String[] args) {
 		SpringApplication.run(UnitifyApplication.class, args);
 	}
@@ -69,7 +76,7 @@ public class UnitifyApplication {
 
 		log.info("PDF created");
 	}
-	@EventListener(ApplicationReadyEvent.class)
+	//@EventListener(ApplicationReadyEvent.class)
 	private void pdfAnnualReportExample() throws FileNotFoundException {
 		AnnualPaymentReportDto data = new AnnualPaymentReportDto();
 		data.setYear("2023");
@@ -152,4 +159,28 @@ public class UnitifyApplication {
 		log.info("PDF created");
 	}
 
+	//@EventListener(ApplicationReadyEvent.class)
+	private void pdfPayrollExample() throws FileNotFoundException {
+		PayrollReportDto data = new PayrollReportDto();
+		data.setFirstFortnight(true);
+		data.setDate(new Date());
+		List<PayrollData> payrollDataList = new ArrayList<>();
+		PayrollData payrollData1 = new PayrollData();
+		payrollData1.setAmount(1240.60);
+		payrollData1.setDescription("Efecuado a Juan Perez Rodriguez por desempeñar la posicion de vigilante");
+		PayrollData payrollData2 = new PayrollData();
+		payrollData2.setAmount(3440.60);
+		payrollData2.setDescription("Efecuado a Fernando Perez Rodriguez por desempeñar la posicion de administrador");
+		payrollDataList.add(payrollData1);
+		payrollDataList.add(payrollData2);
+		data.setPayrollData(payrollDataList);
+		pdfService.payrollReport(data);
+		log.info("PDF created");
+	}
+
+	@EventListener(ApplicationReadyEvent.class)
+	private void testCollectionPayment() throws FileNotFoundException, ExecutionException, InterruptedException {
+		//paymentService.getPayments();
+		log.info("testCollectionPayment Ready");
+	}
 }

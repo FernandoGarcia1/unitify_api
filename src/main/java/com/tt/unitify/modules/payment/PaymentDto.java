@@ -1,10 +1,11 @@
 package com.tt.unitify.modules.payment;
 
+import com.google.cloud.Timestamp;
 import lombok.Data;
 
 @Data
 public class PaymentDto {
     String amount;
-    String creationDate;
+    Timestamp date;
     String idBill;
 }

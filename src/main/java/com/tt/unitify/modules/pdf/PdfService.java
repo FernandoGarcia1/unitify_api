@@ -14,6 +14,8 @@ import com.tt.unitify.modules.pdf.dto.annualpaymentreport.PaymentReportDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDataDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDto;
 import com.tt.unitify.modules.pdf.dto.monthlyreport.MonthlyReportDto;
+import com.tt.unitify.modules.pdf.dto.payrollreport.PayrollData;
+import com.tt.unitify.modules.pdf.dto.payrollreport.PayrollReportDto;
 import com.tt.unitify.modules.utils.CONSTANS;
 import com.tt.unitify.modules.utils.FirebaseUtil;
 import lombok.extern.log4j.Log4j2;
@@ -23,7 +25,10 @@ import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 @Service
 @Log4j2
@@ -104,7 +109,7 @@ public class PdfService {
         Document doc = new Document();
 
         try {
-            FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./income_report.pdf"));
+            FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./income_report"+data.getMonth()+"_"+data.getYear()+".pdf"));
             final PdfWriter pdfWriter = PdfWriter.getInstance(doc, pdfOutputFile);
             doc.open();
 
@@ -166,7 +171,7 @@ public class PdfService {
 
 
 
-            //Add contentm to the document using Table objects.
+
             doc.add(table);
             doc.close();
             pdfWriter.close();
@@ -182,7 +187,7 @@ public class PdfService {
         Document doc = new Document();
 
         try {
-            FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./monthly_report.pdf"));
+            FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./monthly_report_"+data.getMonth()+"_"+data.getYear()+".pdf"));
             final PdfWriter pdfWriter = PdfWriter.getInstance(doc, pdfOutputFile);
             doc.open();
 
@@ -390,6 +395,71 @@ public class PdfService {
             return new PdfPCell(new Paragraph("Folio: "+data.getFolio()+"\n"+"Fecha: "+data.getDatePayment(),cellFont));
         }else {
             return new PdfPCell(new Paragraph(""));
+        }
+    }
+
+    public void payrollReport(PayrollReportDto data) throws FileNotFoundException {
+        Document doc = new Document();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(data.getDate());
+
+        // Obtener el mes y el año por separado
+        int mounth = calendar.get(Calendar.MONTH) + 1; //
+        int year = calendar.get(Calendar.YEAR);
+
+        try {
+            FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./payroll_"+mounth+"_"+year+".pdf"));
+            final PdfWriter pdfWriter = PdfWriter.getInstance(doc, pdfOutputFile);
+            doc.open();
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM yyyy", new Locale("es", "ES"));
+
+            // Formatear la fecha en español
+            String dateFormatted = dateFormat.format(data.getDate());
+
+            String payrollDate= data.isFirstFortnight()? "PRIMERA": "SEGUNDA";
+            String title = "NÓMINA ".concat(payrollDate).concat(" QUINCENA").concat(" DE ").concat(dateFormatted .toUpperCase());
+            Font titleFont = new Font(Font.ITALIC, 18, Font.UNDERLINE, Color.BLACK);
+            Paragraph titleParagraph = new Paragraph(title, titleFont);
+            titleParagraph.setAlignment(Element.ALIGN_CENTER);
+            doc.add(titleParagraph);
+            doc.add(new Paragraph(Chunk.NEWLINE));
+            doc.add(new Paragraph(Chunk.NEWLINE));
+
+            String paymentReport = "Recibo de pago";
+            Font textFont = new Font(Font.HELVETICA, 12);
+            Double totalAmount = 0.0;
+            Chunk linebreak = new Chunk(new DottedLineSeparator());
+            for (PayrollData payrollData : data.getPayrollData()) {
+
+                Paragraph paymetParagraph = new Paragraph(paymentReport, textFont);
+                doc.add(paymetParagraph);
+                doc.add(new Paragraph(Element.CHUNK));
+
+                String payrollAmount = "Bueno por: $"+payrollData.getAmount().toString();
+                Paragraph amountParagraph = new Paragraph(payrollAmount, textFont);
+                doc.add(amountParagraph);
+                doc.add(new Paragraph(Element.CHUNK));
+
+                String payrollDescription = payrollData.getDescription();
+                Paragraph descriptionParagraph = new Paragraph(payrollDescription, textFont);
+                doc.add(descriptionParagraph);
+                doc.add(new Paragraph(Element.CHUNK));
+                totalAmount += payrollData.getAmount();
+                doc.add(linebreak);
+            }
+
+            doc.add(linebreak);
+            String totalAmountText = "Total pagado en la quincena: $"+totalAmount.toString();
+            Paragraph totalAmountParagraph = new Paragraph(totalAmountText, textFont);
+            totalAmountParagraph.setAlignment(Element.ALIGN_CENTER);
+            doc.add(totalAmountParagraph);
+
+            doc.close();
+            pdfWriter.close();
+        }catch(Exception e) {
+            log.error("Error generating PDF document. {} - {}", e.getMessage(), e.getStackTrace());
+            throw e;
         }
     }
 }

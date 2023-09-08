@@ -7,4 +7,5 @@ import lombok.EqualsAndHashCode;
 @Data
 public class BuildingEntity extends BuildingDto{
     String id;
+
 }
