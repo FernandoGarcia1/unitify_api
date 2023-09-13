@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class BuildingDto {
-    String buildingName;
+    String name;
 
 }

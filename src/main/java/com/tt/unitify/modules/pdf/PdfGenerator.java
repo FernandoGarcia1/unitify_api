@@ -13,6 +13,7 @@ import com.tt.unitify.modules.pdf.dto.annualpaymentreport.DepartmentDataDto;
 import com.tt.unitify.modules.pdf.dto.annualpaymentreport.PaymentReportDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDataDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDto;
+import com.tt.unitify.modules.pdf.dto.monthlydepartmentreport.MonthlyDepartmentReportDto;
 import com.tt.unitify.modules.pdf.dto.monthlyreport.MonthlyReportDto;
 import com.tt.unitify.modules.pdf.dto.payrollreport.PayrollData;
 import com.tt.unitify.modules.pdf.dto.payrollreport.PayrollReportDto;
@@ -27,23 +28,22 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 @Service
 @Log4j2
-public class CreatePdfService {
+public class PdfGenerator {
 
     public static final String CREATE_FILE_ERROR = "Error generating PDF document. ";
 
     public void createPdf() {
-        Document myPDFDoc = new Document();
+        Document document = new Document();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            PdfWriter.getInstance(myPDFDoc, byteArrayOutputStream);
-            myPDFDoc.open();
-            myPDFDoc.add(new Paragraph("This is a simple PDF created with openPDF"));
-            myPDFDoc.close(); //5) Close the Document
+            PdfWriter.getInstance(document, byteArrayOutputStream);
+            document.open();
+            document.add(new Paragraph("This is a simple PDF created with openPDF"));
+            document.close(); //5) Close the Document
             byte[] pdfBytes = byteArrayOutputStream.toByteArray();
             FirebaseUtil.uploadFile(pdfBytes, "sample1.pdf");
             log.info("PDF created successfully {}", pdfBytes);
@@ -53,51 +53,63 @@ public class CreatePdfService {
         }
     }
 
-    public void monthlyDepartmentReport(){
-        Document myPDFDoc = new Document();
+    public void monthlyDepartmentReport(MonthlyDepartmentReportDto data){
+
+        Document document = new Document(PageSize.A6.rotate());
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(data.getCorrespondingDate());
 
         try {
             FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./sample1.pdf"));
 
-            final PdfWriter pdfWriter = PdfWriter.getInstance(myPDFDoc, pdfOutputFile);
+            final PdfWriter pdfWriter = PdfWriter.getInstance(document, pdfOutputFile);
 
-            myPDFDoc.open();  // Open the Document
-
-
+            document.open();  // Open the Document
 
 
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM yyyy", new Locale("es", "ES"));
+            String correspondingDateFormat = dateFormat.format(data.getCorrespondingDate());
+
+            SimpleDateFormat completeDateFormat = new SimpleDateFormat("dd MMMM yyyy", new Locale("es", "ES"));
             /* End of the adding metadata section */
             // Create a Font object
-            Font titleFont = new Font(Font.COURIER, 30f, Font.NORMAL, Color.BLUE);
+            Font titleFont = new Font(Font.COURIER, 12f, Font.NORMAL, Color.BLUE);
             Paragraph title = new Paragraph(CONSTANS.UNITIFY,titleFont);
             title.setAlignment(Element.ALIGN_CENTER);
 
-            Font subTitleFont = new Font(Font.COURIER, 22f, Font.ITALIC, Color.BLUE);
+            Font subTitleFont = new Font(Font.COURIER, 12f, Font.ITALIC, Color.BLUE);
             Paragraph subTitle = new Paragraph((CONSTANS.U_H),subTitleFont);
             subTitle.setAlignment(Element.ALIGN_CENTER);
 
-            myPDFDoc.add(title);
-            myPDFDoc.add(subTitle);
-            Chunk linebreak = new Chunk(new DottedLineSeparator());
-            myPDFDoc.add(linebreak);
-            // Adding an empty line
-            myPDFDoc.add(new Paragraph(Chunk.NEWLINE));
 
-            myPDFDoc.add(new Paragraph(CONSTANS.FOLIO.concat("1234")));
-            myPDFDoc.add(new Paragraph(Chunk.NEWLINE));
+            Font textFont = new Font(Font.COURIER, 10f);
+
+            document.add(title);
+            document.add(subTitle);
+            Chunk linebreak = new Chunk(new DottedLineSeparator());
+            document.add(linebreak);
+            // Adding an empty line
+
+            document.add(new Paragraph(CONSTANS.FOLIO.concat(data.getFolio()),textFont));
+
 
             // Include the text as content of the pdf
-            myPDFDoc.add(new Paragraph(CONSTANS.BUILD.concat("2").concat("-").concat(CONSTANS.DEPARTAMENT).concat("2-A")));
-            myPDFDoc.add(new Paragraph(Chunk.NEWLINE));
+            document.add(new Paragraph(CONSTANS.BUILD.concat(data.getBuilding()).concat(" ").concat(CONSTANS.DEPARTAMENT).concat(data.getDepartment()), textFont));
 
-            myPDFDoc.add(new Paragraph(CONSTANS.PAY_DATE.concat(new Date().toString())));
-            myPDFDoc.add(new Paragraph(Chunk.NEWLINE));
 
-            myPDFDoc.add(new Paragraph(CONSTANS.AMOUNT.concat("2,000")));
-            myPDFDoc.add(new Paragraph(Chunk.NEWLINE));
+            document.add(new Paragraph(CONSTANS.PAY_DATE.concat(correspondingDateFormat), textFont));
 
-            myPDFDoc.add(linebreak);
-            myPDFDoc.close();
+
+            document.add(new Paragraph(CONSTANS.COMPLETED_DATE.concat(completeDateFormat.format(data.getCompletedDate())), textFont));
+
+            document.add(new Paragraph(CONSTANS.CONCEPT.concat(data.getDescription()), textFont));
+
+
+            document.add(new Paragraph(CONSTANS.AMOUNT.concat(data.getAmount()), textFont));
+            document.add(new Paragraph(Chunk.NEWLINE));
+
+            document.close();
             pdfWriter.close();
             log.info("PDF created successfully");
         } catch (Exception e) {
@@ -146,12 +158,16 @@ public class CreatePdfService {
             table.addCell(title6);
 
             for (IncomeStatementDataDto incomeStatementDataDto : data.getData()) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM yyyy", new Locale("es", "ES"));
+                String correspondingDateFormat = dateFormat.format(incomeStatementDataDto.getMonthPaid());
+                String paymentDate = dateFormat.format(incomeStatementDataDto.getDate());
+
                 PdfPCell cell1 = new PdfPCell(new Paragraph(incomeStatementDataDto.getInvoice()));
                 PdfPCell cell2 = new PdfPCell(new Paragraph(incomeStatementDataDto.getBuilding()));
                 PdfPCell cell3 = new PdfPCell(new Paragraph(incomeStatementDataDto.getDepartment()));
-                PdfPCell cell4 = new PdfPCell(new Paragraph(incomeStatementDataDto.getMonthPaid()));
+                PdfPCell cell4 = new PdfPCell(new Paragraph(correspondingDateFormat.toUpperCase()));
                 PdfPCell cell5 = new PdfPCell(new Paragraph(incomeStatementDataDto.getAmount()));
-                PdfPCell cell6 = new PdfPCell(new Paragraph(incomeStatementDataDto.getDate()));
+                PdfPCell cell6 = new PdfPCell(new Paragraph(paymentDate.toUpperCase()));
 
                 cell1.setBorder(Rectangle.NO_BORDER);
                 cell2.setBorder(Rectangle.NO_BORDER);

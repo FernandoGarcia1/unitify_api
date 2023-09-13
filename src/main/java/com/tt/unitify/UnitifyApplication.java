@@ -1,6 +1,6 @@
 package com.tt.unitify;
 
-import com.tt.unitify.modules.pdf.CreatePdfService;
+import com.tt.unitify.modules.pdf.PdfGenerator;
 import com.tt.unitify.modules.pdf.dto.annualpaymentreport.AnnualPaymentReportDto;
 import com.tt.unitify.modules.pdf.dto.annualpaymentreport.DepartmentDataDto;
 import com.tt.unitify.modules.pdf.dto.annualpaymentreport.PaymentReportDto;
@@ -28,16 +28,16 @@ import java.util.concurrent.ExecutionException;
 public class UnitifyApplication {
 
 	@Autowired
-	CreatePdfService createPdfService;
+	PdfGenerator pdfGenerator;
 
 
 	public static void main(String[] args) {
 		SpringApplication.run(UnitifyApplication.class, args);
 	}
 
-	@EventListener(ApplicationReadyEvent.class)
+	//@EventListener(ApplicationReadyEvent.class)
 	public void pdfMonthlyDepartmentReportExample() throws FileNotFoundException {
-		createPdfService.monthlyDepartmentReport();
+		pdfGenerator.monthlyDepartmentReport(null);
 		log.info("PDF created");
 	}
 	//@EventListener(ApplicationReadyEvent.class)
@@ -50,14 +50,14 @@ public class UnitifyApplication {
 		data1.setInvoice("123456");
 		data1.setBuilding("B");
 		data1.setDepartment("301");
-		data1.setMonthPaid("Enero 2022");
+		//data1.setMonthPaid("Enero 2022");
 		data1.setAmount("1000");
-		data1.setDate("Enero 2022");
+		//data1.setDate("Enero 2022");
 		for (int i = 0; i <100 ; i++) {
 			incomeStatementDtoList.add(data1);
 		}
 		data.setData(incomeStatementDtoList);
-		createPdfService.incomeStatement(data);
+		pdfGenerator.incomeStatement(data);
 		log.info("PDF created");
 	}
 
@@ -76,7 +76,7 @@ public class UnitifyApplication {
 		miscellaneousExpenses.setDescription("Limpieza, agua, luz.");
 		miscellaneousExpenses.setTotalAmount("1000");
 		data.setOthersPayments(miscellaneousExpenses);
-		createPdfService.monthlyReport(data);
+		pdfGenerator.monthlyReport(data);
 
 		log.info("PDF created");
 	}
@@ -159,7 +159,7 @@ public class UnitifyApplication {
 		data.setPaymentDataList(paymentDataList);
 
 
-		createPdfService.annualPaymentReport(data);
+		pdfGenerator.annualPaymentReport(data);
 		log.info("PDF created");
 	}
 
@@ -178,7 +178,7 @@ public class UnitifyApplication {
 		payrollDataList.add(payrollData1);
 		payrollDataList.add(payrollData2);
 		data.setPayrollData(payrollDataList);
-		createPdfService.payrollReport(data);
+		pdfGenerator.payrollReport(data);
 		log.info("PDF created");
 	}
 

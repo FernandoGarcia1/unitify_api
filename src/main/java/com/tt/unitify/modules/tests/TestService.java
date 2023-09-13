@@ -1,7 +1,7 @@
 package com.tt.unitify.modules.tests;
 
 import com.google.firebase.database.utilities.Pair;
-import com.tt.unitify.modules.pdf.CreatePdfService;
+import com.tt.unitify.modules.pdf.PdfGenerator;
 import com.tt.unitify.modules.utils.FirebaseUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import java.io.IOException;
 public class TestService {
 
     @Autowired
-    CreatePdfService createPdfService;
+    PdfGenerator pdfGenerator;
 
     String uploadFile(MultipartFile file, String fileName) throws IOException {
         return FirebaseUtil.uploadFile(file.getBytes(), fileName);
@@ -31,7 +31,7 @@ public class TestService {
 
         void creeatePdf() throws Exception {
             //pdfService.createPdf();
-            createPdfService.monthlyDepartmentReport();
+            pdfGenerator.monthlyDepartmentReport(null);
         }
 
 

@@ -6,4 +6,5 @@ import lombok.Data;
 public class DepartmentDto {
     String idBuilding;
     String owner;
+    String name;
 }
