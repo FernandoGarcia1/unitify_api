@@ -10,7 +10,7 @@ public class BillDto {
     String idDepartment;
     Timestamp creationDate;
     String description;
-    boolean isPaid;
+    boolean paid;
     String totalAmount;
     String amountPaid;
     String idBillType;

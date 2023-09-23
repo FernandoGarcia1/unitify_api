@@ -81,7 +81,7 @@ public class UnitifyApplication {
 		log.info("PDF created");
 	}
 	//@EventListener(ApplicationReadyEvent.class)
-	private void pdfAnnualReportExample() throws FileNotFoundException {
+	/*private void pdfAnnualReportExample() throws FileNotFoundException {
 		AnnualPaymentReportDto data = new AnnualPaymentReportDto();
 		data.setYear("2023");
 		data.setBuilding("B");
@@ -161,7 +161,7 @@ public class UnitifyApplication {
 
 		pdfGenerator.annualPaymentReport(data);
 		log.info("PDF created");
-	}
+	}*/
 
 	//@EventListener(ApplicationReadyEvent.class)
 	private void pdfPayrollExample() throws FileNotFoundException {

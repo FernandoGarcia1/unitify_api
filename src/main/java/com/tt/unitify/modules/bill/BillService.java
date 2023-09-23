@@ -36,6 +36,27 @@ public class BillService {
         return collection.get().getId();
     }
 
+    public List<BillEntity> findByDepartmentAndIsPaid(String idDepartment) throws ExecutionException, InterruptedException {
+
+        CollectionReference bill = db.collection(COLLECTION);
+
+        Query query = bill.whereEqualTo("idDepartment", idDepartment).whereEqualTo("paid", true);
+
+        ApiFuture<QuerySnapshot> querySnapshot = query.get();
+        List<BillEntity> billList = new ArrayList<>();
+        for (DocumentSnapshot document : querySnapshot.get().getDocuments()) {
+            BillEntity entity = document.toObject(BillEntity.class);
+            if ( entity != null) {
+                entity.setId(document.getId());
+                billList.add(entity);
+            } else {
+                log.info("Department not found!");
+            }
+
+        }
+        return billList;
+    }
+
 
     public BillEntity findBillById(String id) throws ExecutionException, InterruptedException {
         DocumentReference docRef = db.collection(COLLECTION).document(id);
@@ -82,6 +103,28 @@ public class BillService {
             incomeStatementDataDtoList.add(incomeStatementDataDto);
         }
         return incomeStatementDataDtoList;
+    }
+
+    public List<BillEntity> filterByYearAndBuilding(String idBuilding, String year) throws ExecutionException, InterruptedException {
+
+        BuildingEntity buildingEntity = buildingService.findBuildingById(idBuilding);
+        List<BillEntity> finalList = new ArrayList<>();
+        if (buildingEntity!=null) {
+            // Obtiene el ID del edificio
+            String idBuildingId = buildingEntity.getId();
+            // Consulta los departamentos relacionados con el edificio
+            List<DepartmentEntity> departmentEntities= departmentService.findByBuilding(idBuildingId);
+
+            // Recorre los departamentos y consulta las facturas relacionadas
+            for (DepartmentEntity departmentEntity : departmentEntities) {
+                String idDepartment = departmentEntity.getId();
+                List<BillEntity> billEntities = findByDepartmentAndIsPaid(idDepartment);
+                finalList.addAll(billEntities);
+            }
+        } else {
+            log.info("No se encontró el edificio con nombre: " + idBuilding);
+        }
+        return finalList;
     }
 
 }
