@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -76,7 +78,7 @@ public class BillService {
 
     public List<BillEntity> findByMonth(Timestamp startDate, Timestamp endDate) throws ExecutionException, InterruptedException {
         CollectionReference ref = db.collection(COLLECTION);
-        Query query = ref.whereGreaterThanOrEqualTo("completedDate",startDate).whereLessThanOrEqualTo("completedDate",endDate);
+        Query query = ref.whereGreaterThanOrEqualTo("completedDate",startDate).whereLessThanOrEqualTo("completedDate",endDate).whereEqualTo("paid", true);
         List<BillEntity> billList = new ArrayList<>();
         for (DocumentSnapshot document : query.get().get().getDocuments()) {
             BillEntity entity = document.toObject(BillEntity.class);
@@ -105,6 +107,16 @@ public class BillService {
         return incomeStatementDataDtoList;
     }
 
+    public List<BillEntity> findByMonthAndOrderByFolio(Timestamp startDate, Timestamp endDate) throws ExecutionException, InterruptedException {
+        List<BillEntity> billList = findByMonth(startDate, endDate);
+        log.info("BillList: {}", billList);
+        Collections.sort(billList, Comparator.comparing(BillEntity::getFolio));
+        return billList;
+    }
+
+
+
+
     public List<BillEntity> filterByYearAndBuilding(String idBuilding, String year) throws ExecutionException, InterruptedException {
 
         BuildingEntity buildingEntity = buildingService.findBuildingById(idBuilding);
@@ -125,6 +137,14 @@ public class BillService {
             log.info("No se encontró el edificio con nombre: " + idBuilding);
         }
         return finalList;
+    }
+
+    public double totalAmount(List<BillEntity> billEntities) {
+        double totalAmount = 0;
+        for (BillEntity billEntity : billEntities) {
+            totalAmount += Double.parseDouble(billEntity.getTotalAmount());
+        }
+        return totalAmount;
     }
 
 }

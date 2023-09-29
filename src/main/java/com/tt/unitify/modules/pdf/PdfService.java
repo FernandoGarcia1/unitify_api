@@ -7,13 +7,23 @@ import com.tt.unitify.modules.building.BuildingEntity;
 import com.tt.unitify.modules.building.BuildingService;
 import com.tt.unitify.modules.departments.DepartmentEntity;
 import com.tt.unitify.modules.departments.DepartmentService;
+import com.tt.unitify.modules.dto.TimestampDto;
+import com.tt.unitify.modules.paymentservices.PaymentServicesEntity;
+import com.tt.unitify.modules.paymentservices.PaymentServicesService;
+import com.tt.unitify.modules.payrollpayment.PayrollPaymentEntity;
+import com.tt.unitify.modules.payrollpayment.PayrollPaymentService;
 import com.tt.unitify.modules.pdf.dto.annualpaymentreport.AnnualPaymentReportDto;
 import com.tt.unitify.modules.pdf.dto.annualpaymentreport.DepartmentDataDto;
 import com.tt.unitify.modules.pdf.dto.annualpaymentreport.PaymentReportDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDataDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDto;
 import com.tt.unitify.modules.pdf.dto.monthlydepartmentreport.MonthlyDepartmentReportDto;
+import com.tt.unitify.modules.pdf.dto.monthlyreport.MiscellaneousExpenses;
+import com.tt.unitify.modules.pdf.dto.monthlyreport.MonthlyReportDto;
+import com.tt.unitify.modules.reservefund.ReserveFundEntity;
+import com.tt.unitify.modules.reservefund.ReserveFundService;
 import com.tt.unitify.modules.users.UserService;
+import com.tt.unitify.modules.utils.TransformUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,6 +50,12 @@ public class PdfService {
     BuildingService buildingService;
     @Autowired
     PdfGenerator pdfGenerator;
+    @Autowired
+    ReserveFundService reserveFundService;
+    @Autowired
+    PayrollPaymentService payrollPaymentService;
+    @Autowired
+    PaymentServicesService paymentServicesService;
 
 
     public void generateMonthlyDepartmentReport(String idDepartment, String idBill) throws ExecutionException, InterruptedException {
@@ -70,25 +86,14 @@ public class PdfService {
         Date date = convertToDateViaInstant(localDate);
         log.info("Generate Income Report - Date {}", date);
         SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM", new Locale("es", "ES"));
-
-
         SimpleDateFormat yearFormat = new SimpleDateFormat("YYYY", new Locale("es", "ES"));
 
         incomeReportDto.setMonth( monthFormat.format(date));
         incomeReportDto.setYear(yearFormat.format(date));
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-
-        int month = calendar.get(Calendar.MONTH);
-        int year = calendar.get(Calendar.YEAR);
-
-        Date firstDay = new GregorianCalendar(year, month, 1).getTime();
-        Date lastDay = new GregorianCalendar(year, month, calendar.getActualMaximum(Calendar.DAY_OF_MONTH)).getTime();
-
-
-        Timestamp startDate = Timestamp.of(firstDay);
-        Timestamp endDate = Timestamp.of(lastDay);
+        TimestampDto timestampDto =TransformUtil.getTimestampDto(date);
+        Timestamp startDate = timestampDto.getStartDateTime();
+        Timestamp endDate = timestampDto.getEndDateTime();
 
         log.info("Find payments from: {} - to: {}", startDate, endDate);
         List<BillEntity> billPaymentsList=billService.findByMonth(startDate, endDate);
@@ -163,15 +168,33 @@ public class PdfService {
     public void generateMonthlyReport(LocalDate localDate) throws ExecutionException, InterruptedException, FileNotFoundException {
 
         Date date = convertToDateViaInstant(localDate);
-        log.info("Generate Monthly Report - Date {}", date);
-        //List<BillEntity> billEntities = billService.filterByYearAndBuilding(building, "2021");
+        TimestampDto timestampDto =TransformUtil.getTimestampDto(date);
+        Timestamp startDate = timestampDto.getStartDateTime();
+        Timestamp endDate = timestampDto.getEndDateTime();
 
-        AnnualPaymentReportDto annualPaymentReportDto = new AnnualPaymentReportDto();
-        annualPaymentReportDto.setYear(String.valueOf(localDate.getYear()));
+        MonthlyReportDto monthlyDepartmentReportDto = new MonthlyReportDto();
+        SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM", new Locale("es", "ES"));
+        SimpleDateFormat yearFormat = new SimpleDateFormat("YYYY", new Locale("es", "ES"));
+        monthlyDepartmentReportDto.setMonth(monthFormat.format(date));
+        monthlyDepartmentReportDto.setYear(yearFormat.format(date));
+        ReserveFundEntity reserveFundEntity = getReserveFund(date);
+        monthlyDepartmentReportDto = getMonthlyReportDto(monthlyDepartmentReportDto, startDate,endDate, reserveFundEntity);
+        monthlyDepartmentReportDto = getInfoForPayrollsPayments(date, monthlyDepartmentReportDto);
+        MiscellaneousExpenses miscellaneousExpenses = getMiscellaneousExpenses(date);
+        monthlyDepartmentReportDto.setOthersPayments(miscellaneousExpenses);
 
-        List<DepartmentDataDto> paymentDataList = new ArrayList<>();
-
-
+        //Todo subir fondo a base de datos
+        double totalFund=pdfGenerator.monthlyReport(monthlyDepartmentReportDto);
+        log.info("TotalFund: {}", totalFund);
+        log.info("Generate Monthly Report {}", monthlyDepartmentReportDto);
+        reserveFundEntity.setAmount(String.valueOf(totalFund));
+        log.info("Original Period: {} - {}", startDate, endDate);
+        Timestamp starDateNextMonth = TransformUtil.addOneMonth(startDate);
+        Timestamp endDateNextMonth = TransformUtil.addOneMonth(endDate);
+        log.info("Next Period: {} - {}", starDateNextMonth, endDateNextMonth);
+        Timestamp newDate = TransformUtil.addSevenDays(starDateNextMonth);
+        reserveFundEntity.setDate(newDate);
+        reserveFundService.createOrUpdate(starDateNextMonth,endDateNextMonth,reserveFundEntity);
     }
 
 
@@ -179,5 +202,67 @@ public class PdfService {
         return java.util.Date.from(dateToConvert.atStartOfDay()
                 .atZone(ZoneId.systemDefault())
                 .toInstant());
+    }
+
+
+
+    private MonthlyReportDto getMonthlyReportDto(MonthlyReportDto dto, Timestamp startDate, Timestamp endDate, ReserveFundEntity reserveFundEntity) throws ExecutionException, InterruptedException {
+
+        List<BillEntity> billPaymentsList= billService.findByMonthAndOrderByFolio(startDate, endDate);
+        if (!billPaymentsList.isEmpty() && billPaymentsList!=null) {
+            dto.setFolioStart(billPaymentsList.get(0).getFolio());
+            dto.setFolioEnd(billPaymentsList.get(billPaymentsList.size()-1).getFolio());
+        }else {
+            dto.setFolioStart("x");
+            dto.setFolioEnd("x");
+        }
+
+
+        double totalAmount = billService.totalAmount(billPaymentsList);
+        dto.setTotalAmount(String.valueOf(totalAmount));
+        if (reserveFundEntity!=null) {
+            dto.setTotalFund(reserveFundEntity.getAmount());
+        } else {
+            dto.setTotalFund("0");
+        }
+
+        return dto;
+    }
+
+    private ReserveFundEntity getReserveFund(Date date) throws ExecutionException, InterruptedException {
+        TimestampDto timestampDto =TransformUtil.getTimestampDto(date);
+        Timestamp startDate = timestampDto.getStartDateTime();
+        Timestamp endDate = timestampDto.getEndDateTime();
+        ReserveFundEntity reserveFundEntity = reserveFundService.findByMonth(startDate, endDate);
+        log.info("ReserveFundEntity: {}", reserveFundEntity);
+        return reserveFundEntity;
+    }
+
+    private MonthlyReportDto getInfoForPayrollsPayments(Date date, MonthlyReportDto monthlyReportDto) throws ExecutionException, InterruptedException {
+        List<PayrollPaymentEntity> firstPayrollPayment = payrollPaymentService.getFirstPayrollPayment(date);
+        double firstPayrollAmount = payrollPaymentService.payrollAmount(firstPayrollPayment);
+        monthlyReportDto.setFirstPayroll(String.valueOf(firstPayrollAmount));
+
+        List<PayrollPaymentEntity> secondPayrollPayment = payrollPaymentService.getSecondPayrollPayment(date);
+        double secondPayrollAmount = payrollPaymentService.payrollAmount(secondPayrollPayment);
+        monthlyReportDto.setSecondPayroll(String.valueOf(secondPayrollAmount));
+
+        return monthlyReportDto;
+    }
+
+    private MiscellaneousExpenses getMiscellaneousExpenses(Date date) throws ExecutionException, InterruptedException {
+        MiscellaneousExpenses miscellaneousExpenses = new MiscellaneousExpenses();
+        TimestampDto timestampDto =TransformUtil.getTimestampDto(date);
+        Timestamp startDate = timestampDto.getStartDateTime();
+        Timestamp endDate = timestampDto.getEndDateTime();
+
+        log.info("Find payments from: {} - to: {}", startDate, endDate);
+
+        List<PaymentServicesEntity> paymentServicesEntities = paymentServicesService.findBetweenDates(startDate, endDate);
+        log.info("paymentServicesEntities: {}", paymentServicesEntities);
+
+        miscellaneousExpenses.setTotalAmount(String.valueOf(paymentServicesService.totalAmount(paymentServicesEntities)));
+        miscellaneousExpenses.setDescription(paymentServicesService.concatDescription(paymentServicesEntities));
+        return miscellaneousExpenses;
     }
 }

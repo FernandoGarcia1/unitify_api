@@ -1,5 +1,6 @@
 package com.tt.unitify.modules.paymentservices;
 
+import com.google.cloud.Timestamp;
 import lombok.Data;
 
 @Data
@@ -8,6 +9,6 @@ public class PaymentServicesDto {
     String description;
     String amount;
     String urlVoucher;
-    String creationDate;
+    Timestamp  creationDate;
     String idAdmin;
 }

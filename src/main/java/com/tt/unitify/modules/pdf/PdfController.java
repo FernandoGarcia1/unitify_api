@@ -2,7 +2,6 @@ package com.tt.unitify.modules.pdf;
 
 import com.tt.unitify.modules.bill.BillDto;
 import com.tt.unitify.modules.bill.BillService;
-import com.tt.unitify.modules.departments.DepartmentEntity;
 import com.tt.unitify.modules.departments.DepartmentService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Log4j2
