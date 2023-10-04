@@ -539,7 +539,8 @@ public class PdfGenerator {
         int year = calendar.get(Calendar.YEAR);
 
         try {
-            FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./payroll_"+mounth+"_"+year+".pdf"));
+            String fortnight = data.isFirstFortnight()? "1": "2";
+            FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./quincena_"+fortnight+"_"+mounth+"_"+year+".pdf"));
             final PdfWriter pdfWriter = PdfWriter.getInstance(doc, pdfOutputFile);
             doc.open();
 
@@ -561,23 +562,33 @@ public class PdfGenerator {
             Font textFont = new Font(Font.HELVETICA, 12);
             Double totalAmount = 0.0;
             Chunk linebreak = new Chunk(new DottedLineSeparator());
-            for (PayrollData payrollData : data.getPayrollData()) {
-
-                Paragraph paymetParagraph = new Paragraph(paymentReport, textFont);
-                doc.add(paymetParagraph);
-                doc.add(new Paragraph(Element.CHUNK));
-
-                String payrollAmount = "Bueno por: $"+payrollData.getAmount().toString();
-                Paragraph amountParagraph = new Paragraph(payrollAmount, textFont);
-                doc.add(amountParagraph);
-                doc.add(new Paragraph(Element.CHUNK));
-
-                String payrollDescription = payrollData.getDescription();
+            if (data.getPayrollData() == null || data.getPayrollData().isEmpty()) {
+                String payrollDescription = "No hay pagos registrados para esta quincena";
                 Paragraph descriptionParagraph = new Paragraph(payrollDescription, textFont);
                 doc.add(descriptionParagraph);
                 doc.add(new Paragraph(Element.CHUNK));
-                totalAmount += payrollData.getAmount();
-                doc.add(linebreak);
+            }
+            else {
+                for (PayrollData payrollData : data.getPayrollData()) {
+
+                    Paragraph paymetParagraph = new Paragraph(paymentReport, textFont);
+                    doc.add(paymetParagraph);
+                    doc.add(new Paragraph(Element.CHUNK));
+
+                    String payrollAmount = "Bueno por: $" + payrollData.getAmount().toString();
+                    Paragraph amountParagraph = new Paragraph(payrollAmount, textFont);
+                    doc.add(amountParagraph);
+                    doc.add(new Paragraph(Element.CHUNK));
+
+                    String name = payrollData.getName() != null ? payrollData.getName() : "(desconocido)";
+                    String workstation = payrollData.getWorkstation() != null ? payrollData.getWorkstation() : "(desconocido)";
+                    String payrollDescription = "Efectuado a ".concat(name).concat(" por desempeñar la posicion de ".concat(workstation));
+                    Paragraph descriptionParagraph = new Paragraph(payrollDescription, textFont);
+                    doc.add(descriptionParagraph);
+                    doc.add(new Paragraph(Element.CHUNK));
+                    totalAmount += payrollData.getAmount();
+                    doc.add(linebreak);
+                }
             }
 
             doc.add(linebreak);

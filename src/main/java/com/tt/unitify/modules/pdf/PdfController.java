@@ -3,6 +3,7 @@ package com.tt.unitify.modules.pdf;
 import com.tt.unitify.modules.bill.BillDto;
 import com.tt.unitify.modules.bill.BillService;
 import com.tt.unitify.modules.departments.DepartmentService;
+import com.tt.unitify.modules.pdf.dto.payrollreport.PayrollReportDto;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -44,6 +45,12 @@ public class PdfController {
     @GetMapping("/monthly-report")
     public void monthlyReport(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate date) throws InterruptedException, ExecutionException, FileNotFoundException {
         pdfService.generateMonthlyReport(date);
+    }
+
+    @GetMapping("/payroll-report")
+    public void payrollReport(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate date, @RequestParam("isFirstFortnight") String isFirstFortnight) throws InterruptedException, ExecutionException, FileNotFoundException {
+        boolean firstFortnight = Boolean.parseBoolean(isFirstFortnight);
+        pdfService.generatePayrollReport(date, firstFortnight);
     }
 
 

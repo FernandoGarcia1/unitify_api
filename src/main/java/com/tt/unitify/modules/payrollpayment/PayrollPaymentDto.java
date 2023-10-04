@@ -12,4 +12,5 @@ public class PayrollPaymentDto {
     Timestamp date;
     String workstation;
     String idAdmin;
+    String description;
 }

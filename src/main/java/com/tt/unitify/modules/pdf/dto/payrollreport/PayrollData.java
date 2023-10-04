@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class PayrollData {
     private Double amount;
-    private String description;
+    private String name;
+    private String workstation;
 
 }

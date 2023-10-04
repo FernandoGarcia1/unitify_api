@@ -1,9 +1,6 @@
 package com.tt.unitify;
 
 import com.tt.unitify.modules.pdf.PdfGenerator;
-import com.tt.unitify.modules.pdf.dto.annualpaymentreport.AnnualPaymentReportDto;
-import com.tt.unitify.modules.pdf.dto.annualpaymentreport.DepartmentDataDto;
-import com.tt.unitify.modules.pdf.dto.annualpaymentreport.PaymentReportDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDataDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDto;
 import com.tt.unitify.modules.pdf.dto.monthlyreport.MiscellaneousExpenses;
@@ -163,7 +160,7 @@ public class UnitifyApplication {
 		log.info("PDF created");
 	}*/
 
-	//@EventListener(ApplicationReadyEvent.class)
+	@EventListener(ApplicationReadyEvent.class)
 	private void pdfPayrollExample() throws FileNotFoundException {
 		PayrollReportDto data = new PayrollReportDto();
 		data.setFirstFortnight(true);
@@ -171,10 +168,8 @@ public class UnitifyApplication {
 		List<PayrollData> payrollDataList = new ArrayList<>();
 		PayrollData payrollData1 = new PayrollData();
 		payrollData1.setAmount(1240.60);
-		payrollData1.setDescription("Efecuado a Juan Perez Rodriguez por desempeñar la posicion de vigilante");
 		PayrollData payrollData2 = new PayrollData();
 		payrollData2.setAmount(3440.60);
-		payrollData2.setDescription("Efecuado a Fernando Perez Rodriguez por desempeñar la posicion de administrador");
 		payrollDataList.add(payrollData1);
 		payrollDataList.add(payrollData2);
 		data.setPayrollData(payrollDataList);

@@ -20,6 +20,8 @@ import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDto;
 import com.tt.unitify.modules.pdf.dto.monthlydepartmentreport.MonthlyDepartmentReportDto;
 import com.tt.unitify.modules.pdf.dto.monthlyreport.MiscellaneousExpenses;
 import com.tt.unitify.modules.pdf.dto.monthlyreport.MonthlyReportDto;
+import com.tt.unitify.modules.pdf.dto.payrollreport.PayrollData;
+import com.tt.unitify.modules.pdf.dto.payrollreport.PayrollReportDto;
 import com.tt.unitify.modules.reservefund.ReserveFundEntity;
 import com.tt.unitify.modules.reservefund.ReserveFundService;
 import com.tt.unitify.modules.users.UserService;
@@ -195,6 +197,24 @@ public class PdfService {
         Timestamp newDate = TransformUtil.addSevenDays(starDateNextMonth);
         reserveFundEntity.setDate(newDate);
         reserveFundService.createOrUpdate(starDateNextMonth,endDateNextMonth,reserveFundEntity);
+    }
+
+    public void generatePayrollReport(LocalDate localDate, boolean isFirstFortnight) throws ExecutionException, InterruptedException, FileNotFoundException {
+        Date date = convertToDateViaInstant(localDate);
+        PayrollReportDto dto = new PayrollReportDto();
+        dto.setFirstFortnight(isFirstFortnight);
+        dto.setDate(date);
+        List<PayrollPaymentEntity> payrollPaymentEntityList = new ArrayList<>();
+        if (isFirstFortnight) {
+            payrollPaymentEntityList = payrollPaymentService.getFirstPayrollPayment(date);
+        } else {
+            payrollPaymentEntityList = payrollPaymentService.getSecondPayrollPayment(date);
+        }
+        List<PayrollData> payrollDataList= new ArrayList<>();
+        payrollDataList = TransformUtil.toListPayrollData(payrollPaymentEntityList);
+        dto.setPayrollData(payrollDataList);
+        pdfGenerator.payrollReport(dto);
+        log.info("Generate Payroll Report {}", dto);
     }
 
 

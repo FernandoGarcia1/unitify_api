@@ -4,7 +4,9 @@ import com.google.cloud.Timestamp;
 import com.google.firebase.database.utilities.Pair;
 import com.tt.unitify.modules.bill.BillEntity;
 import com.tt.unitify.modules.dto.TimestampDto;
+import com.tt.unitify.modules.payrollpayment.PayrollPaymentEntity;
 import com.tt.unitify.modules.pdf.dto.annualpaymentreport.PaymentReportDto;
+import com.tt.unitify.modules.pdf.dto.payrollreport.PayrollData;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -140,6 +142,21 @@ public class TransformUtil {
         calendar.setTimeInMillis(date.toDate().getTime());
         calendar.set(Calendar.DAY_OF_MONTH, 7);
         return Timestamp.of(calendar.getTime());
+    }
+
+    public static List<PayrollData> toListPayrollData (List<PayrollPaymentEntity> paymentEntityList){
+        if (paymentEntityList == null || paymentEntityList.isEmpty()) {
+            return null;
+        }
+        List<PayrollData> payrollDataList = new ArrayList<>();
+        for (PayrollPaymentEntity entity : paymentEntityList) {
+            PayrollData payrollData = new PayrollData();
+            payrollData.setAmount(Double.parseDouble(entity.getAmount()));
+            payrollData.setName(entity.getName());
+            payrollData.setWorkstation(entity.getWorkstation());
+            payrollDataList.add(payrollData);
+        }
+        return payrollDataList;
     }
 
 
