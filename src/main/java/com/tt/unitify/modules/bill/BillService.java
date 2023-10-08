@@ -93,7 +93,8 @@ public class BillService {
     }
 
 
-    public List<BillEntity> findByMonth(Timestamp startDate, Timestamp endDate) throws ExecutionException, InterruptedException {
+
+    public List<BillEntity> paymentsByCompletedDateInMonth(Timestamp startDate, Timestamp endDate) throws ExecutionException, InterruptedException {
         CollectionReference ref = db.collection(COLLECTION);
         //Validar que la fecha se evalue con el campo completedDate y no con el campo correspondingDate
         Query query = ref.whereGreaterThanOrEqualTo("completedDate",startDate).whereLessThanOrEqualTo("completedDate",endDate).whereEqualTo("paid", true);
@@ -126,7 +127,7 @@ public class BillService {
     }
 
     public List<BillEntity> findByMonthAndOrderByFolio(Timestamp startDate, Timestamp endDate) throws ExecutionException, InterruptedException {
-        List<BillEntity> billList = findByMonth(startDate, endDate);
+        List<BillEntity> billList = paymentsByCompletedDateInMonth(startDate, endDate);
         log.info("BillList: {}", billList);
         Collections.sort(billList, Comparator.comparing(BillEntity::getFolio));
         return billList;

@@ -98,7 +98,7 @@ public class PdfService {
         Timestamp endDate = timestampDto.getEndDateTime();
 
         log.info("Find payments from: {} - to: {}", startDate, endDate);
-        List<BillEntity> billPaymentsList=billService.findByMonth(startDate, endDate);
+        List<BillEntity> billPaymentsList=billService.paymentsByCompletedDateInMonth(startDate, endDate);
         log.info("BillPaymentsList: {}", billPaymentsList);
         List<IncomeStatementDataDto> incomeStatementDataDtoList = billService.incomeStatementDataDtoList(billPaymentsList);
         incomeReportDto.setData(incomeStatementDataDtoList);
