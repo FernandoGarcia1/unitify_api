@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,7 +34,6 @@ public class BillService {
 
     public String create(BillDto bill) throws ExecutionException, InterruptedException {
 
-        //ApiFuture<WriteResult> collection = dbFirestore.collection(COLLECTION).document(USER_DOCUMENT).set(user);
         ApiFuture<DocumentReference> collection = db.collection(COLLECTION).add(bill);
         return collection.get().getId();
     }
@@ -59,6 +59,23 @@ public class BillService {
         return billList;
     }
 
+    public BillEntity findByMonthAndIdDepartmentAndBillTypeAndIsPaid(String idDepartment, Timestamp startDate, Timestamp endDate) throws ExecutionException, InterruptedException {
+        CollectionReference ref = db.collection(COLLECTION);
+
+        Query query = ref.whereGreaterThanOrEqualTo("correspondingDate",startDate).whereLessThanOrEqualTo("correspondingDate",endDate).whereEqualTo("paid", true).whereEqualTo("idDepartment", idDepartment).whereEqualTo("idBillType","1");
+        List<BillEntity> billList = new ArrayList<>();
+        for (DocumentSnapshot document : query.get().get().getDocuments()) {
+            BillEntity entity = document.toObject(BillEntity.class);
+            entity.setId(document.getId());
+            billList.add(entity);
+        }
+
+        if (!billList.isEmpty()){
+            return billList.get(0);
+        }
+        return null;
+    }
+
 
     public BillEntity findBillById(String id) throws ExecutionException, InterruptedException {
         DocumentReference docRef = db.collection(COLLECTION).document(id);
@@ -78,6 +95,7 @@ public class BillService {
 
     public List<BillEntity> findByMonth(Timestamp startDate, Timestamp endDate) throws ExecutionException, InterruptedException {
         CollectionReference ref = db.collection(COLLECTION);
+        //Validar que la fecha se evalue con el campo completedDate y no con el campo correspondingDate
         Query query = ref.whereGreaterThanOrEqualTo("completedDate",startDate).whereLessThanOrEqualTo("completedDate",endDate).whereEqualTo("paid", true);
         List<BillEntity> billList = new ArrayList<>();
         for (DocumentSnapshot document : query.get().get().getDocuments()) {
@@ -115,29 +133,6 @@ public class BillService {
     }
 
 
-
-
-    public List<BillEntity> filterByYearAndBuilding(String idBuilding, String year) throws ExecutionException, InterruptedException {
-
-        BuildingEntity buildingEntity = buildingService.findBuildingById(idBuilding);
-        List<BillEntity> finalList = new ArrayList<>();
-        if (buildingEntity!=null) {
-            // Obtiene el ID del edificio
-            String idBuildingId = buildingEntity.getId();
-            // Consulta los departamentos relacionados con el edificio
-            List<DepartmentEntity> departmentEntities= departmentService.findByBuilding(idBuildingId);
-
-            // Recorre los departamentos y consulta las facturas relacionadas
-            for (DepartmentEntity departmentEntity : departmentEntities) {
-                String idDepartment = departmentEntity.getId();
-                List<BillEntity> billEntities = findByDepartmentAndIsPaid(idDepartment);
-                finalList.addAll(billEntities);
-            }
-        } else {
-            log.info("No se encontró el edificio con nombre: " + idBuilding);
-        }
-        return finalList;
-    }
 
     public double totalAmount(List<BillEntity> billEntities) {
         double totalAmount = 0;
