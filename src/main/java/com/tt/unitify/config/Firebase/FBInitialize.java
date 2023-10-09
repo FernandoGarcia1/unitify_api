@@ -1,26 +1,8 @@
 package com.tt.unitify.config.Firebase;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-@Log4j2
-@Service
-@Configuration
 public class FBInitialize {
 
-    @PostConstruct
+    /*@PostConstruct
     public void initialize() throws IOException {
         Gson gson = new GsonBuilder().create();
         String json = gson.toJson(getServiceAccount());
@@ -61,5 +43,5 @@ public class FBInitialize {
         account.setClient_x509_cert_url("https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-pg5o5%40unitify-dc8f2.iam.gserviceaccount.com");
         account.setUniverse_domain("googleapis.com");
         return account;
-    }
+    }*/
 }
