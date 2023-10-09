@@ -32,4 +32,10 @@ public class ParkingControlController {
         log.info("idDepartment: {}", id);
         return parkingControllerService.validateAccess(id);
     }
+
+    @GetMapping("")
+    public String validateAccess() throws ExecutionException, InterruptedException {
+        log.info("idDepartment: test");
+        return "test";
+    }
 }

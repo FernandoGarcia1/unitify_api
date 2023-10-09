@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -16,13 +17,14 @@ import java.io.IOException;
 
 @Log4j2
 @Service
+@Configuration
 public class FBInitialize {
 
     @PostConstruct
     public void initialize() throws IOException {
         Gson gson = new GsonBuilder().create();
         String json = gson.toJson(getServiceAccount());
-
+        log.info("json-cloud: {}", json);
         // Crear un archivo temporal
         File tempFile = File.createTempFile("service_account", ".json");
 

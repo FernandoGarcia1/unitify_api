@@ -160,7 +160,7 @@ public class UnitifyApplication {
 		log.info("PDF created");
 	}*/
 
-	@EventListener(ApplicationReadyEvent.class)
+	//@EventListener(ApplicationReadyEvent.class)
 	private void pdfPayrollExample() throws FileNotFoundException {
 		PayrollReportDto data = new PayrollReportDto();
 		data.setFirstFortnight(true);
