@@ -60,7 +60,7 @@ public class PdfService {
     PaymentServicesService paymentServicesService;
 
 
-    public void generateMonthlyDepartmentReport(String idDepartment, String idBill) throws ExecutionException, InterruptedException {
+    public byte[] generateMonthlyDepartmentReport(String idDepartment, String idBill) throws ExecutionException, InterruptedException {
         MonthlyDepartmentReportDto monthlyDepartmentReportDto = new MonthlyDepartmentReportDto();
         DepartmentEntity department = departmentService.findDepartmentByID(idDepartment);
         monthlyDepartmentReportDto.setOwner(department.getOwner());
@@ -78,11 +78,10 @@ public class PdfService {
         log.info("Date-2: {}", bill.getCreationDate().toDate());
         monthlyDepartmentReportDto.setCorrespondingDate(bill.getCorrespondingDate().toDate());
         monthlyDepartmentReportDto.setCompletedDate(bill.getCompletedDate().toDate());
-        pdfGenerator.monthlyDepartmentReport(monthlyDepartmentReportDto);
-
+        return pdfGenerator.monthlyDepartmentReport(monthlyDepartmentReportDto);
     }
 
-    public void generateIncomeReport(LocalDate localDate) throws ExecutionException, InterruptedException {
+    public PdfResponse generateIncomeReport(LocalDate localDate) throws ExecutionException, InterruptedException {
 
         IncomeStatementDto incomeReportDto = new IncomeStatementDto();
         Date date = convertToDateViaInstant(localDate);
@@ -102,10 +101,11 @@ public class PdfService {
         log.info("BillPaymentsList: {}", billPaymentsList);
         List<IncomeStatementDataDto> incomeStatementDataDtoList = billService.incomeStatementDataDtoList(billPaymentsList);
         incomeReportDto.setData(incomeStatementDataDtoList);
-        pdfGenerator.incomeStatement(incomeReportDto);
+        PdfResponse pdfResponse = pdfGenerator.incomeStatement(incomeReportDto);
+        return pdfResponse;
     }
 
-    public void generateAnnualReport(LocalDate localDate, String idBuilding) throws ExecutionException, InterruptedException, FileNotFoundException {
+    public PdfResponse generateAnnualReport(LocalDate localDate, String idBuilding) throws ExecutionException, InterruptedException, FileNotFoundException {
 
         Date date = convertToDateViaInstant(localDate);
         log.info("Generate Annual Report - Date {}", date);
@@ -160,14 +160,13 @@ public class PdfService {
             log.info("No se encontró el edificio con nombre: " + idBuilding);
         }
 
-        pdfGenerator.annualPaymentReport(annualPaymentReportDto);
+        PdfResponse pdfResponse =pdfGenerator.annualPaymentReport(annualPaymentReportDto);
         log.info("Generate Annual Report - Date {}", date);
-
-        // Consulta el edificio por su nombre
+        return pdfResponse;
 
     }
 
-    public void generateMonthlyReport(LocalDate localDate) throws ExecutionException, InterruptedException, FileNotFoundException {
+    public PdfResponse generateMonthlyReport(LocalDate localDate) throws ExecutionException, InterruptedException, FileNotFoundException {
 
         Date date = convertToDateViaInstant(localDate);
         TimestampDto timestampDto =TransformUtil.getTimestampDto(date);
@@ -186,7 +185,8 @@ public class PdfService {
         monthlyDepartmentReportDto.setOthersPayments(miscellaneousExpenses);
 
         //Todo subir fondo a base de datos
-        double totalFund=pdfGenerator.monthlyReport(monthlyDepartmentReportDto);
+        PdfResponse pdfResponse=pdfGenerator.monthlyReport(monthlyDepartmentReportDto);
+        double totalFund = pdfResponse.getAmount();
         log.info("TotalFund: {}", totalFund);
         log.info("Generate Monthly Report {}", monthlyDepartmentReportDto);
         reserveFundEntity.setAmount(String.valueOf(totalFund));
@@ -197,9 +197,10 @@ public class PdfService {
         Timestamp newDate = TransformUtil.addSevenDays(starDateNextMonth);
         reserveFundEntity.setDate(newDate);
         reserveFundService.createOrUpdate(starDateNextMonth,endDateNextMonth,reserveFundEntity);
+        return pdfResponse;
     }
 
-    public void generatePayrollReport(LocalDate localDate, boolean isFirstFortnight) throws ExecutionException, InterruptedException, FileNotFoundException {
+    public PdfResponse generatePayrollReport(LocalDate localDate, boolean isFirstFortnight) throws ExecutionException, InterruptedException, FileNotFoundException {
         Date date = convertToDateViaInstant(localDate);
         PayrollReportDto dto = new PayrollReportDto();
         dto.setFirstFortnight(isFirstFortnight);
@@ -213,8 +214,9 @@ public class PdfService {
         List<PayrollData> payrollDataList= new ArrayList<>();
         payrollDataList = TransformUtil.toListPayrollData(payrollPaymentEntityList);
         dto.setPayrollData(payrollDataList);
-        pdfGenerator.payrollReport(dto);
+        PdfResponse pdfResponse =pdfGenerator.payrollReport(dto);
         log.info("Generate Payroll Report {}", dto);
+        return pdfResponse;
     }
 
 

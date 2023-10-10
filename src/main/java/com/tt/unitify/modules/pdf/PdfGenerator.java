@@ -57,17 +57,16 @@ public class PdfGenerator {
         }
     }
 
-    public void monthlyDepartmentReport(MonthlyDepartmentReportDto data){
-
+    public byte[] monthlyDepartmentReport(MonthlyDepartmentReportDto data){
+        log.info("Create monthly department report {}", data);
         Document document = new Document(PageSize.A6.rotate());
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(data.getCorrespondingDate());
 
         try {
-            FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./sample1.pdf"));
-
-            final PdfWriter pdfWriter = PdfWriter.getInstance(document, pdfOutputFile);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            PdfWriter pdfWriter = PdfWriter.getInstance(document, byteArrayOutputStream);
 
             document.open();  // Open the Document
 
@@ -116,17 +115,22 @@ public class PdfGenerator {
             document.close();
             pdfWriter.close();
             log.info("PDF created successfully");
+            return byteArrayOutputStream.toByteArray();
+
         } catch (Exception e) {
             log.error(CREATE_FILE_ERROR+"{} - {}", e.getMessage(), e.getStackTrace());
         }
+        return new byte[0];
     }
 
-    public void incomeStatement(IncomeStatementDto data){
+    public PdfResponse incomeStatement(IncomeStatementDto data){
+        log.info("Create income statement report {}", data);
         Document doc = new Document();
-
+        PdfResponse pdfResponse = new PdfResponse();
         try {
-            FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./income_report"+data.getMonth()+"_"+data.getYear()+".pdf"));
-            final PdfWriter pdfWriter = PdfWriter.getInstance(doc, pdfOutputFile);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            String fileName= "reporte_de_ingreso_"+data.getMonth()+"_"+data.getYear()+".pdf";
+            PdfWriter pdfWriter = PdfWriter.getInstance(doc, byteArrayOutputStream);
             doc.open();
 
             String title = "Reporte de ingresos correspondiente al mes de ".concat(data.getMonth()).concat(" de ").concat(data.getYear());
@@ -188,27 +192,31 @@ public class PdfGenerator {
                 table.addCell(cell6);
             }
 
-
-
-
-
             doc.add(table);
             doc.close();
             pdfWriter.close();
+            pdfResponse.setData(byteArrayOutputStream.toByteArray());
+            pdfResponse.setName(fileName);
+            log.info("PDF created successfully");
+            return pdfResponse;
         }catch (Exception e) {
             log.error("Error generating PDF document. {} - {}", e.getMessage(), e.getStackTrace());
+            return null;
         }
 
 
     }
 
     //TODO: El total de ingresos debe registrarse en base de datos para el siguiente mes
-    public double monthlyReport(MonthlyReportDto data) throws FileNotFoundException {
+    public PdfResponse monthlyReport(MonthlyReportDto data) throws FileNotFoundException {
+        log.info("Create monthly report {}", data);
         Document doc = new Document();
-
+        PdfResponse pdfResponse = new PdfResponse();
         try {
-            FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./monthly_report_"+data.getMonth()+"_"+data.getYear()+".pdf"));
-            final PdfWriter pdfWriter = PdfWriter.getInstance(doc, pdfOutputFile);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            String name ="reporte_del_mes"+data.getMonth()+"_"+data.getYear()+".pdf";
+            PdfWriter pdfWriter = PdfWriter.getInstance(doc, byteArrayOutputStream);
+
             doc.open();
 
             String title = "Reporte del mes de ".concat(data.getMonth()).concat(" de ").concat(data.getYear());
@@ -307,10 +315,14 @@ public class PdfGenerator {
             }
             doc.close();
             pdfWriter.close();
-            return total;
+            pdfResponse.setName(name);
+            pdfResponse.setData(byteArrayOutputStream.toByteArray());
+            pdfResponse.setAmount(total);
+            log.info("PDF created successfully");
+            return pdfResponse;
         } catch (Exception e) {
             log.error("Error generating PDF document. {} - {}", e.getMessage(), e.getStackTrace());
-            throw e;
+            return null;
         }
     }
 
@@ -410,12 +422,15 @@ public class PdfGenerator {
         }
     }*/
 
-    public void annualPaymentReport(AnnualPaymentReportDto data) throws FileNotFoundException {
+    public PdfResponse annualPaymentReport(AnnualPaymentReportDto data) throws FileNotFoundException {
+        log.info("Create annual payment report {}", data);
+        PdfResponse pdfResponse = new PdfResponse();
         Document doc = new Document();
         doc.setPageSize(PageSize.A4.rotate());
         try {
-            FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./annual_report_building_"+data.getBuilding()+"_"+data.getYear()+".pdf"));
-            final PdfWriter pdfWriter = PdfWriter.getInstance(doc, pdfOutputFile);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            String name ="reporte_anual_edificio_"+data.getBuilding()+"_"+data.getYear()+".pdf";
+            PdfWriter pdfWriter = PdfWriter.getInstance(doc, byteArrayOutputStream);
             doc.open();
 
             String title = "EDIFICIO ".concat(data.getBuilding());
@@ -478,17 +493,6 @@ public class PdfGenerator {
                 log.info("After paymentData.getPaymentDtoList() {}", paymentData.getPaymentDtoList());
 
                 log.info("PaymentData name:  {}", paymentData.getName());
-                /*for (int i = 0; i < 12; i++) {
-                    if (i < paymentData.getPaymentDtoList().size()) {
-                        PdfPCell cell = pdfCell(paymentData.getPaymentDtoList().get(i), cellFont);
-                        table.addCell(cell);
-                    } else {
-                        // Agregar una celda vacía
-                        PdfPCell emptyCell = new PdfPCell();
-                        table.addCell(emptyCell);
-                    }
-                }*/
-
 
                 boolean isMonthInTheArray = false;
                 for (int i = 0; i < 12; i++) {
@@ -513,9 +517,14 @@ public class PdfGenerator {
             doc.add(table);
             doc.close();
             pdfWriter.close();
+            log.info("PDF created successfully");
+            pdfResponse.setName(name);
+            pdfResponse.setData(byteArrayOutputStream.toByteArray());
+            log.info("PDF created successfully");
+            return pdfResponse;
         } catch (Exception e) {
             log.error("Error generating PDF document. {} - {}", e.getMessage(), e.getStackTrace());
-            throw e;
+            return null;
         }
     }
 
@@ -529,7 +538,8 @@ public class PdfGenerator {
         }
     }
 
-    public void payrollReport(PayrollReportDto data) throws FileNotFoundException {
+    public PdfResponse payrollReport(PayrollReportDto data) throws FileNotFoundException {
+        log.info("Create payroll report {}", data);
         Document doc = new Document();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(data.getDate());
@@ -537,11 +547,14 @@ public class PdfGenerator {
         // Obtener el mes y el año por separado
         int mounth = calendar.get(Calendar.MONTH) + 1; //
         int year = calendar.get(Calendar.YEAR);
-
+        PdfResponse pdfResponse = new PdfResponse();
         try {
             String fortnight = data.isFirstFortnight()? "1": "2";
-            FileOutputStream pdfOutputFile = new FileOutputStream(CONSTANS.DIRECTORY.concat("./quincena_"+fortnight+"_"+mounth+"_"+year+".pdf"));
-            final PdfWriter pdfWriter = PdfWriter.getInstance(doc, pdfOutputFile);
+
+
+            String fileName= "quincena_"+fortnight+"_"+mounth+"_"+year+".pdf";
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            final PdfWriter pdfWriter = PdfWriter.getInstance(doc, byteArrayOutputStream);
             doc.open();
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM yyyy", new Locale("es", "ES"));
@@ -599,9 +612,13 @@ public class PdfGenerator {
 
             doc.close();
             pdfWriter.close();
+            pdfResponse.setName(fileName);
+            pdfResponse.setData(byteArrayOutputStream.toByteArray());
+            log.info("PDF created successfully");
+            return pdfResponse;
         }catch(Exception e) {
             log.error("Error generating PDF document. {} - {}", e.getMessage(), e.getStackTrace());
-            throw e;
+            return null;
         }
     }
 }
