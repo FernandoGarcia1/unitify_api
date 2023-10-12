@@ -33,7 +33,7 @@ public class PdfController {
 
     @GetMapping("/generate-monthly-department")
     public byte [] generateMonthlyPayrollReport(@RequestParam(required = true) String idDepartment, @RequestParam(required = true) String idBill, @Context HttpServletResponse response) throws ExecutionException, InterruptedException, ExecutionException {
-        response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "comprobante_de_pago_".concat(idBill).concat("pdf"));
+        response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "comprobante_de_pago_".concat(idBill).concat(".pdf"));
         return pdfService.generateMonthlyDepartmentReport(idDepartment, idBill);
     }
 
