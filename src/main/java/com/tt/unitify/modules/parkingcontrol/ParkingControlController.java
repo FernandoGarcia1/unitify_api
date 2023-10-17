@@ -21,9 +21,9 @@ public class ParkingControlController {
     @Autowired
     QrService qrService;
 
-    @PostMapping("/{id}")
+    @GetMapping("/{id}")
     public byte[] generateQr(@PathVariable String id) throws IOException, WriterException {
-        log.info("id: {}", id);
+        log.info("Generate Qr id: {}", id);
         return parkingControllerService.generateQrForDepartment(id);
     }
 

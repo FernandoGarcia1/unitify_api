@@ -31,14 +31,16 @@ public class PdfController {
     @Autowired
     DepartmentService departmentService;
 
-    @GetMapping("/generate-monthly-department")
+    @GetMapping("/payment-report")
     public byte [] generateMonthlyPayrollReport(@RequestParam(required = true) String idDepartment, @RequestParam(required = true) String idBill, @Context HttpServletResponse response) throws ExecutionException, InterruptedException, ExecutionException {
+        log.info("payment-report idDepartment: {}, idBill: {}", idDepartment, idBill);
         response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "comprobante_de_pago_".concat(idBill).concat(".pdf"));
         return pdfService.generateMonthlyDepartmentReport(idDepartment, idBill);
     }
 
     @GetMapping("/generate-income-report")
     public byte[] generateIncomeReport(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate date, @Context HttpServletResponse response)throws InterruptedException, ExecutionException {
+        log.info("generate-income-report date: {}", date);
         PdfResponse pdfResponse =pdfService.generateIncomeReport(date);
         response.addHeader(HttpHeaders.CONTENT_DISPOSITION, pdfResponse.getName());
         return pdfResponse.getData();
@@ -46,6 +48,7 @@ public class PdfController {
 
     @GetMapping("/annual-report")
     public byte[] annualReport(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate date, @RequestParam("building") String building, @Context HttpServletResponse response) throws InterruptedException, ExecutionException, FileNotFoundException {
+        log.info("annual-report date: {}, building: {}", date, building);
         PdfResponse pdfResponse =pdfService.generateAnnualReport(date, building);
         response.addHeader(HttpHeaders.CONTENT_DISPOSITION, pdfResponse.getName());
         return pdfResponse.getData();
@@ -53,6 +56,7 @@ public class PdfController {
 
     @GetMapping("/monthly-report")
     public byte[] monthlyReport(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate date, @Context HttpServletResponse response) throws InterruptedException, ExecutionException, FileNotFoundException {
+        log.info("monthly-report date: {}", date);
         PdfResponse pdfResponse =pdfService.generateMonthlyReport(date);
         response.addHeader(HttpHeaders.CONTENT_DISPOSITION, pdfResponse.getName());
         return pdfResponse.getData();
@@ -60,16 +64,11 @@ public class PdfController {
 
     @GetMapping("/payroll-report")
     public byte[] payrollReport(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate date, @RequestParam("isFirstFortnight") String isFirstFortnight, @Context HttpServletResponse response) throws InterruptedException, ExecutionException, FileNotFoundException {
+        log.info("payroll-report date: {}, isFirstFortnight: {}", date, isFirstFortnight);
         boolean firstFortnight = Boolean.parseBoolean(isFirstFortnight);
         PdfResponse pdfResponse =pdfService.generatePayrollReport(date, firstFortnight);
         response.addHeader(HttpHeaders.CONTENT_DISPOSITION, pdfResponse.getName());
         return pdfResponse.getData();
     }
-
-
-    @PostMapping
-    public void create(@RequestBody BillDto dto) throws ExecutionException, InterruptedException, ExecutionException {
-        log.info("BillDto: {}", dto);
-        billService.create(dto);
-    }
+    
 }
