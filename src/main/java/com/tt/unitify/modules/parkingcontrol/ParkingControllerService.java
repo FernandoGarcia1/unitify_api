@@ -76,7 +76,7 @@ public class ParkingControllerService {
         log.info("LLega aqui: {}", department);
         if (department == null) {
             log.info("El idDepartment no es válido.");
-            String message = "El código QR no es válido.";
+            String message = "2";
             log.info("message: {}", message);
             ResponseDto responseDto = new ResponseDto(message);
             log.info("responseDto: {}", responseDto);
@@ -107,15 +107,15 @@ public class ParkingControllerService {
                 String idParkingControl = create(parkingControlDto);
                 log.info("idParkingControl: {}", idParkingControl);
 
-                return new ResponseEntity<>(new ResponseDto("El usuario tiene acceso."), HttpStatus.OK);
+                return new ResponseEntity<>(new ResponseDto("0"), HttpStatus.OK);
             }else {
                 log.info("El departamento no es candidato a tener acceso.");
-                return new ResponseEntity<>(new ResponseDto("El usuario no tiene acceso."), HttpStatus.OK);
+                return new ResponseEntity<>(new ResponseDto("1"), HttpStatus.OK);
             }
 
         }else {
             log.info("Existe el registro en la tabla de control de acceso. El departamento tiene acceso.");
-            return new ResponseEntity<>(new ResponseDto("El usuario tiene acceso."), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseDto("0"), HttpStatus.OK);
         }
     }
 
