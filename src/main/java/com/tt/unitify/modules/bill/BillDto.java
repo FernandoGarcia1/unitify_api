@@ -12,7 +12,7 @@ public class BillDto {
     String description;
     boolean paid;
     String totalAmount;
-    String amountPaid;
+    String amount;
     String idBillType;
     String folio;
     Timestamp  correspondingDate;
