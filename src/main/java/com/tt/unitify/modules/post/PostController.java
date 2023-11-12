@@ -1,5 +1,6 @@
 package com.tt.unitify.modules.post;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,9 +18,10 @@ public class PostController {
     PostService postService;
 
     @PostMapping("/create-alert")
-    public String createAlert() throws ExecutionException, InterruptedException {
-        postService.sendAlertNotification();
+    public String createAlert() throws ExecutionException, InterruptedException, FirebaseMessagingException {
 
+        log.info("createAlert");
+        postService.sendAlertMulticast();
         return "createAlert";
     }
 }
