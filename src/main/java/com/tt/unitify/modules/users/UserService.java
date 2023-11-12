@@ -1,13 +1,13 @@
 package com.tt.unitify.modules.users;
 
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Log4j2
@@ -36,6 +36,25 @@ public class UserService {
             log.info("No such document!");
             return null;
         }
+    }
+
+    public List<String> getUsersWithTokenFmc() throws ExecutionException, InterruptedException {
+        Firestore firestore = FirestoreClient.getFirestore();
+
+        // Obtén la referencia a la colección "users"
+        Iterable<QueryDocumentSnapshot> documents = firestore.collection("USERS").get().get();
+
+        List<String> usersWithTokenFmc = new ArrayList<>();
+
+        // Itera sobre los documentos y agrega aquellos que tienen el campo "tokenFmc"
+        for (QueryDocumentSnapshot document : documents) {
+            if (document.contains("tokenFmc")) {
+                if (document.getString("tokenFmc") != null) {
+                    usersWithTokenFmc.add(document.getString("tokenFmc"));
+                }
+            }
+        }
+        return usersWithTokenFmc;
     }
 
     /*public String update(String id,UserDto user) throws ExecutionException, InterruptedException {
