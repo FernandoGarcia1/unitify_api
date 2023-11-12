@@ -15,6 +15,12 @@ public class DepartmentService {
     public static final String COLLECTION="DEPARTMENT";
     private final Firestore db = FirestoreClient.getFirestore();
 
+    public String create(DepartmentDto department) throws ExecutionException, InterruptedException {
+        ApiFuture<DocumentReference> create = db.collection(COLLECTION).add(department);
+        log.info("Create: {}", create.get().get());
+        return create.get().getId();
+    }
+
     public DepartmentEntity findDepartmentByID(String id) throws ExecutionException, InterruptedException {
         log.info("findDepartmentByID: {}", id);
         DocumentReference docRef = db.collection(COLLECTION).document(id);
@@ -46,7 +52,6 @@ public class DepartmentService {
             } else {
                 log.info("Department not found!");
             }
-            System.out.println(document.getId());
         }
         return departmentList;
     }
