@@ -48,7 +48,7 @@ public class UserService {
 
         // Itera sobre los documentos y agrega aquellos que tienen el campo "tokenFmc"
         for (QueryDocumentSnapshot document : documents) {
-            if (document.contains("tokenFmc") && (document.getString("tokenFmc") != null)) {
+            if (document.contains("tokenFmc") && (document.getString("tokenFmc") != null) || document.getString("tokenFmc").isEmpty() || document.getString("tokenFmc").isBlank() || !document.getString("tokenFmc").equals("")) {
                     usersWithTokenFmc.add(document.getString("tokenFmc"));
 
             }
