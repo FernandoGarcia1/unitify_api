@@ -29,6 +29,10 @@ public class NotificationsService {
                 .setBody(body);
         Message message = Message.builder()
                 .setNotification(notificationBuilder.build())
+                .putData("title", title)
+                .putData("body", body)
+                .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
+                .putData("id", "1")//1 es alerta
                 .setToken(userFcmToken)
                 .build();
 
