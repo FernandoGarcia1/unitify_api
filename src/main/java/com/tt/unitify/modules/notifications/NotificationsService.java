@@ -44,9 +44,11 @@ public class NotificationsService {
         }
     }
 
-    public void sendAlertMulticast() throws ExecutionException, InterruptedException, FirebaseMessagingException {
+    public void sendAlertMulticast(String tokenFCM) throws ExecutionException, InterruptedException, FirebaseMessagingException {
         List<String> tokenFmcList = userService.getUsersWithTokenFmc();
-
+        if (!(tokenFCM == null || tokenFCM.isEmpty() || tokenFCM.isBlank() || tokenFCM.equals(""))) {
+            tokenFmcList.remove(tokenFCM);
+        }
         MulticastMessage message = MulticastMessage.builder()
                 .setNotification(Notification.builder()
                         .setTitle("¡Alerta!")

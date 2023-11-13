@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.ExecutionException;
@@ -18,10 +19,11 @@ public class NotificationsController {
     NotificationsService notificationsService;
 
     @PostMapping("/create-alert")
-    public String createAlert() throws ExecutionException, InterruptedException, FirebaseMessagingException {
+    public String createAlert(@RequestParam(required = true) String tokenFCM) throws ExecutionException, InterruptedException, FirebaseMessagingException {
 
         log.info("createAlert");
-        notificationsService.sendAlertMulticast();
+        log.info("tokenFCM: {}", tokenFCM);
+        notificationsService.sendAlertMulticast(tokenFCM);
         return "createAlert";
     }
 
