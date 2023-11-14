@@ -43,14 +43,19 @@ public class UserService {
 
         // Obtén la referencia a la colección "users"
         Iterable<QueryDocumentSnapshot> documents = firestore.collection(COLLECTION).get().get();
-
+        log.info("documents: {}", documents);
         List<String> usersWithTokenFmc = new ArrayList<>();
 
         // Itera sobre los documentos y agrega aquellos que tienen el campo "tokenFmc"
         for (QueryDocumentSnapshot document : documents) {
-            if (document.contains("tokenFmc") && (document.getString("tokenFmc") != null) || !document.getString("tokenFmc").isEmpty() || !document.getString("tokenFmc").isBlank() || !document.getString("tokenFmc").equals("")) {
-                    usersWithTokenFmc.add(document.getString("tokenFmc"));
+            log.info("documents: {}", document);
 
+            log.info("validacion "+document.contains("tokenFmc"));
+
+            if (document.contains("tokenFmc")){
+            if ((document.getString("tokenFmc") != null)  && !document.getString("tokenFmc").equals("")) {
+                usersWithTokenFmc.add(document.getString("tokenFmc"));
+            }
             }
         }
         return usersWithTokenFmc;
@@ -67,7 +72,7 @@ public class UserService {
 
             UserEntity entity = document.toObject(UserEntity.class);
             entity.setId(document.getId());
-            if (entity.getTokenFmc() != null && (!entity.getTokenFmc().isEmpty() || !entity.getTokenFmc().isBlank() || !entity.getTokenFmc().equals(""))) {
+            if (entity.getTokenFmc() != null && (!entity.getTokenFmc().isEmpty() && !entity.getTokenFmc().isBlank() && !entity.getTokenFmc().equals(""))) {
                 usersWithTokenFmc.add(entity.getTokenFmc());
             }
 
