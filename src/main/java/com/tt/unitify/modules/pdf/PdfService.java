@@ -130,7 +130,7 @@ public class PdfService {
                 log.info("Contador: {}", i);
                 i++;
                 String idDepartment = departmentEntity.getId();
-                List<BillEntity> billEntities = billService.findByDepartmentAndIsPaid(idDepartment);
+                List<BillEntity> billEntities = billService.findByDepartmentAndIsPaid(idDepartment, date);
                 log.info("BillEntities: {}", billEntities);
                 DepartmentDataDto departmentDataDto = new DepartmentDataDto();
                 departmentDataDto.setName(departmentEntity.getOwner());

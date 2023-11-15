@@ -8,16 +8,14 @@ import com.tt.unitify.modules.building.BuildingEntity;
 import com.tt.unitify.modules.building.BuildingService;
 import com.tt.unitify.modules.departments.DepartmentEntity;
 import com.tt.unitify.modules.departments.DepartmentService;
+import com.tt.unitify.modules.dto.TimestampDto;
 import com.tt.unitify.modules.pdf.dto.incomestatement.IncomeStatementDataDto;
+import com.tt.unitify.modules.utils.TransformUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Time;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Log4j2
@@ -38,11 +36,12 @@ public class BillService {
         return collection.get().getId();
     }
 
-    public List<BillEntity> findByDepartmentAndIsPaid(String idDepartment) throws ExecutionException, InterruptedException {
+    public List<BillEntity> findByDepartmentAndIsPaid(String idDepartment, Date year) throws ExecutionException, InterruptedException {
 
         CollectionReference bill = db.collection(COLLECTION);
+        TimestampDto date = TransformUtil.getYear(year);
 
-        Query query = bill.whereEqualTo("idDepartment", idDepartment).whereEqualTo("paid", true);
+        Query query = bill.whereEqualTo("idDepartment", idDepartment).whereEqualTo("paid", true).whereGreaterThanOrEqualTo("correspondingDate",date.getStartDateTime()).whereLessThanOrEqualTo("correspondingDate",date.getEndDateTime());
 
         ApiFuture<QuerySnapshot> querySnapshot = query.get();
         List<BillEntity> billList = new ArrayList<>();

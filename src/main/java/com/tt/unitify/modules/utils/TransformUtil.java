@@ -73,6 +73,36 @@ public class TransformUtil {
         return timestampDto;
     }
 
+    public static TimestampDto getYear(Date date) {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+        calendar.setTime(date);
+
+
+        int year = calendar.get(Calendar.YEAR);
+
+        Calendar calendarFirstDay = Calendar.getInstance();
+        calendarFirstDay.setTimeZone(TimeZone.getTimeZone("UTC"));
+        calendarFirstDay.set(year, 1, 1, 0, 0, 0);
+
+        Calendar calendarLastDay = Calendar.getInstance();
+        calendarLastDay.setTimeZone(TimeZone.getTimeZone("UTC"));
+        calendarLastDay.set(year, 12, 31, 23, 59, 59);
+
+        Date firstDay = calendarFirstDay.getTime();
+        Date lastDay = calendarLastDay.getTime();
+
+
+        Timestamp startDate = Timestamp.of(firstDay);
+        Timestamp endDate = Timestamp.of(lastDay);
+
+        TimestampDto timestampDto = new TimestampDto();
+        timestampDto.setStartDateTime(startDate);
+        timestampDto.setEndDateTime(endDate);
+        return timestampDto;
+    }
+
     public static TimestampDto getFirstPayrollPayment(Date date) {
 
         Calendar calendar = Calendar.getInstance();
