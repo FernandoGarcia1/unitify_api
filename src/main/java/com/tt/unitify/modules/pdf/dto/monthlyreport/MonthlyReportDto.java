@@ -13,4 +13,5 @@ public class MonthlyReportDto {
     String firstPayroll;
     String secondPayroll;
     MiscellaneousExpenses othersPayments;
+    int totalPayments;
 }

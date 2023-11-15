@@ -186,10 +186,13 @@ public class PdfService {
 
         //Todo subir fondo a base de datos
         PdfResponse pdfResponse=pdfGenerator.monthlyReport(monthlyDepartmentReportDto);
+        log.info("pdfResponse {}", pdfResponse);
         double totalFund = pdfResponse.getAmount();
         log.info("TotalFund: {}", totalFund);
         log.info("Generate Monthly Report {}", monthlyDepartmentReportDto);
+        log.info("ReserveFundEntity: {}", reserveFundEntity);
         reserveFundEntity.setAmount(String.valueOf(totalFund));
+        log.info("ReserveFundEntity: {}", reserveFundEntity);
         log.info("Original Period: {} - {}", startDate, endDate);
         Timestamp starDateNextMonth = TransformUtil.addOneMonth(startDate);
         Timestamp endDateNextMonth = TransformUtil.addOneMonth(endDate);
@@ -241,6 +244,7 @@ public class PdfService {
 
 
         double totalAmount = billService.totalAmount(billPaymentsList);
+        dto.setTotalPayments(billPaymentsList.size());
         dto.setTotalAmount(String.valueOf(totalAmount));
         if (reserveFundEntity!=null) {
             dto.setTotalFund(reserveFundEntity.getAmount());
@@ -257,6 +261,11 @@ public class PdfService {
         Timestamp endDate = timestampDto.getEndDateTime();
         ReserveFundEntity reserveFundEntity = reserveFundService.findByMonth(startDate, endDate);
         log.info("ReserveFundEntity: {}", reserveFundEntity);
+
+        if (reserveFundEntity == null){
+            reserveFundEntity = new ReserveFundEntity();
+            reserveFundEntity.setDate(Timestamp.of(date));
+        }
         return reserveFundEntity;
     }
 

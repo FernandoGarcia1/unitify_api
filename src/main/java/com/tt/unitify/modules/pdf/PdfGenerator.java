@@ -233,7 +233,7 @@ public class PdfGenerator {
             doc.add(incomeParagraph);
             doc.add(new Paragraph(Element.CHUNK));
 
-            String textFolios = "Con folios de ".concat(data.getFolioStart()).concat(" a ").concat(data.getFolioEnd());
+            String textFolios = "Total de pagos recibidos: ".concat(data.getTotalPayments()+"");
             Paragraph foliosParagraph = new Paragraph(textFolios, textFont);
             doc.add(foliosParagraph);
             doc.add(new Paragraph(Element.CHUNK));
@@ -243,12 +243,13 @@ public class PdfGenerator {
             doc.add(amountParagraph);
             doc.add(new Paragraph(Element.CHUNK));
 
-            String textFund = "Con un fondo del mes anterior de $".concat(String.format("%.2f",Double.parseDouble(data.getTotalFund())));
+            Double totalFund = data.getTotalFund() == null? 0: Double.parseDouble(data.getTotalFund());
+            String textFund = "Con un fondo del mes anterior de $".concat(String.format("%.2f",totalFund));
             Paragraph fundParagraph = new Paragraph(textFund, textFont);
             doc.add(fundParagraph);
             doc.add(new Paragraph(Element.CHUNK));
 
-            double incomeTotal = Double.parseDouble(data.getTotalAmount()) + Double.parseDouble(data.getTotalFund());
+            double incomeTotal = Double.parseDouble(data.getTotalAmount()) + totalFund;
             String textIncomeTotal = "Total de ingresos: $".concat(String.format("%.2f",incomeTotal));
             Paragraph incomeTotalParagraph = new Paragraph(textIncomeTotal, textFont);
             doc.add(incomeTotalParagraph);
