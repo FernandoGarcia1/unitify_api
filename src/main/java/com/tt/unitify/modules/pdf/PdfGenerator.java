@@ -391,6 +391,7 @@ public class PdfGenerator {
 
             Font cellFont = new Font(1, 6);
 
+            Collections.sort(data.getPaymentDataList());
             for (DepartmentDataDto paymentData : data.getPaymentDataList()) {
                 PdfPCell cell1 = new PdfPCell(new Paragraph(paymentData.getDepartment(), cellFont));
                 PdfPCell cell2 = new PdfPCell(new Paragraph(paymentData.getName(), cellFont));
