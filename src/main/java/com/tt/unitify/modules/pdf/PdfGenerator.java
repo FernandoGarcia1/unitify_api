@@ -141,29 +141,35 @@ public class PdfGenerator {
             doc.add(new Paragraph(Chunk.NEWLINE));
             doc.add(new Paragraph(Chunk.NEWLINE));
 
-            PdfPTable table = new PdfPTable(6);
+            PdfPTable table = new PdfPTable(5);
             table.setWidthPercentage(100);
-            table.setWidths(new float[] {16.66F, 10, 13.66F, 22.99F, 13.66F, 22.99F});
+            table.setWidths(new float[] {16.66F, 25.99F, 16.66F, 17.66F, 22.99F});
+            //table.setWidths(new float[] {16.66F, 10, 13.66F, 22.99F, 13.66F, 22.99F});
+
             PdfPCell title1 = new PdfPCell(new Paragraph("FOLIO"));
-            PdfPCell title2 = new PdfPCell(new Paragraph("EDIF"));
-            PdfPCell title3 = new PdfPCell(new Paragraph("DEPTO"));
+
             PdfPCell title4 = new PdfPCell(new Paragraph("MES PAGADO "));
             PdfPCell title5 = new PdfPCell(new Paragraph("CANTIDAD"));
+            PdfPCell title5_1 = new PdfPCell(new Paragraph("DEPTO"));
             PdfPCell title6 = new PdfPCell(new Paragraph("FECHA"));
             title1.setBorder(Rectangle.NO_BORDER);
-            title2.setBorder(Rectangle.NO_BORDER);
-            title3.setBorder(Rectangle.NO_BORDER);
+
             title4.setBorder(Rectangle.NO_BORDER);
             title5.setBorder(Rectangle.NO_BORDER);
+            title5_1.setBorder(Rectangle.NO_BORDER);
             title6.setBorder(Rectangle.NO_BORDER);
 
 
             table.addCell(title1);
-            table.addCell(title2);
-            table.addCell(title3);
+
             table.addCell(title4);
             table.addCell(title5);
+            table.addCell(title5_1);
             table.addCell(title6);
+
+            log.info("List before sorting: {}", data.getData());
+            Collections.sort(data.getData());
+            log.info("List after sorting: {}", data.getData());
 
             for (IncomeStatementDataDto incomeStatementDataDto : data.getData()) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM yyyy", new Locale("es", "ES"));
@@ -171,25 +177,26 @@ public class PdfGenerator {
                 String paymentDate = dateFormat.format(incomeStatementDataDto.getDate());
 
                 PdfPCell cell1 = new PdfPCell(new Paragraph(incomeStatementDataDto.getInvoice()));
-                PdfPCell cell2 = new PdfPCell(new Paragraph(incomeStatementDataDto.getBuilding()));
-                PdfPCell cell3 = new PdfPCell(new Paragraph(incomeStatementDataDto.getDepartment()));
+
                 PdfPCell cell4 = new PdfPCell(new Paragraph(correspondingDateFormat.toUpperCase()));
                 PdfPCell cell5 = new PdfPCell(new Paragraph(incomeStatementDataDto.getAmount()));
+                PdfPCell cell5_1 = new PdfPCell(new Paragraph(incomeStatementDataDto.getBuilding().concat("-").concat(incomeStatementDataDto.getDepartment())));
                 PdfPCell cell6 = new PdfPCell(new Paragraph(paymentDate.toUpperCase()));
 
                 cell1.setBorder(Rectangle.NO_BORDER);
-                cell2.setBorder(Rectangle.NO_BORDER);
-                cell3.setBorder(Rectangle.NO_BORDER);
+
                 cell4.setBorder(Rectangle.NO_BORDER);
                 cell5.setBorder(Rectangle.NO_BORDER);
+                cell5_1.setBorder(Rectangle.NO_BORDER);
                 cell6.setBorder(Rectangle.NO_BORDER);
 
                 table.addCell(cell1);
-                table.addCell(cell2);
-                table.addCell(cell3);
+
                 table.addCell(cell4);
                 table.addCell(cell5);
+                table.addCell(cell5_1);
                 table.addCell(cell6);
+
             }
 
             doc.add(table);
