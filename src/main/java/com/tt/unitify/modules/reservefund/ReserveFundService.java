@@ -45,8 +45,9 @@ public class ReserveFundService {
         ReserveFundEntity reserveFundEntity = this.findByMonth(startDate,endDate);
         log.info("Find createOrUpdate: {}", reserveFundEntity);
         if (!Objects.isNull(reserveFundEntity)) {
-            this.updateAmount(dto.getId(),dto.getAmount());
+            this.updateAmount(reserveFundEntity.getId(),dto.getAmount());
             log.info("Reserve-Fund update: {}", dto.getId());
+            log.info("Monto fondo update: {}", dto.getAmount());
         }else {
             ReserveFundDto reserveFundDto = new ReserveFundDto();
             reserveFundDto.setAmount(dto.getAmount());
@@ -75,7 +76,7 @@ public class ReserveFundService {
     }*/
 
     public void updateAmount(String id, String amount) throws ExecutionException, InterruptedException {
-
+        log.info("Reserve-Fund updateAmount: {}", id);
         DocumentReference docRef = db.collection(COLLECTION).document(id);
         ApiFuture<WriteResult> future = docRef.update("amount", amount);
         WriteResult result = future.get();
