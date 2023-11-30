@@ -61,14 +61,14 @@ public class BillService {
     public BillEntity findByMonthAndIdDepartmentAndBillTypeAndIsPaid(String idDepartment, Timestamp startDate, Timestamp endDate) throws ExecutionException, InterruptedException {
         CollectionReference ref = db.collection(COLLECTION);
 
-        Query query = ref.whereGreaterThanOrEqualTo("correspondingDate",startDate).whereLessThanOrEqualTo("correspondingDate",endDate).whereEqualTo("paid", true).whereEqualTo("idDepartment", idDepartment).whereEqualTo("idBillType","1");
+        Query query = ref.whereGreaterThanOrEqualTo("correspondingDate",startDate).whereLessThanOrEqualTo("correspondingDate",endDate).whereEqualTo("paid", true).whereEqualTo("idDepartment", idDepartment).whereEqualTo("billType","1");
         List<BillEntity> billList = new ArrayList<>();
         for (DocumentSnapshot document : query.get().get().getDocuments()) {
             BillEntity entity = document.toObject(BillEntity.class);
             entity.setId(document.getId());
             billList.add(entity);
         }
-
+        
         if (!billList.isEmpty()){
             return billList.get(0);
         }
