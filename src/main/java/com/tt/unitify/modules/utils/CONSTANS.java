@@ -11,7 +11,7 @@ public class CONSTANS {
     public static final String PAY_DATE = "Mes pagado: ";
     public static final String COMPLETED_DATE = "Fecha de pago: ";
     public static final String CONCEPT = "Concepto o descripcion del pago: ";
-    public static final String AMOUNT = "Candtidad: $";
+    public static final String AMOUNT = "Cantidad: $";
     public static final String FOLIO = "Folio: ";
 
 
